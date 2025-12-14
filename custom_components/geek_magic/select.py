@@ -1,0 +1,116 @@
+"""Select entities for Geek Magic."""
+from __future__ import annotations
+
+from homeassistant.components.select import SelectEntity
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
+from .const import DOMAIN
+from .coordinator import GeekMagicDataUpdateCoordinator
+
+THEMES = {
+    "Weather Clock Today": 1,
+    "Weather Forecast": 2,
+    "Photo Album": 3,
+    "Time Style 1": 4,
+    "Time Style 2": 5,
+    "Time Style 3": 6,
+    "Simple Weather Clock": 7,
+}
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up Geek Magic select."""
+    coordinator: GeekMagicDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
+
+    async_add_entities(
+        [
+            GeekMagicThemeSelect(coordinator, entry),
+            GeekMagicImageSelect(coordinator, entry),
+        ]
+    )
+
+class GeekMagicThemeSelect(CoordinatorEntity, SelectEntity):
+    """Theme select."""
+
+    _attr_name = "Theme"
+    _attr_unique_id = "theme"
+    _attr_options = list(THEMES.keys())
+
+    def __init__(self, coordinator: GeekMagicDataUpdateCoordinator, entry: ConfigEntry) -> None:
+        """Initialize the entity."""
+        super().__init__(coordinator)
+        self._attr_has_entity_name = True
+        self._entry = entry
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": entry.title,
+            "manufacturer": "Geek Magic",
+        }
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self._entry.entry_id}_theme_select"
+
+    @property
+    def current_option(self) -> str | None:
+        """Return the current option."""
+        current_id = self.coordinator.data.get("theme")
+        try:
+            current_id = int(current_id)
+        except (ValueError, TypeError):
+            pass
+
+        for name, theme_id in THEMES.items():
+            if theme_id == current_id:
+                return name
+        return None
+
+    async def async_select_option(self, option: str) -> None:
+        """Change the selected option."""
+        theme_id = THEMES[option]
+        await self.coordinator.client.async_set_theme(theme_id)
+        await self.coordinator.async_request_refresh()
+
+class GeekMagicImageSelect(CoordinatorEntity, SelectEntity):
+    """Image select with local state tracking."""
+
+    _attr_name = "Image"
+    _attr_unique_id = "image_select"
+
+    def __init__(self, coordinator: GeekMagicDataUpdateCoordinator, entry: ConfigEntry) -> None:
+        """Initialize the entity."""
+        super().__init__(coordinator)
+        self._attr_has_entity_name = True
+        self._entry = entry
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": entry.title,
+            "manufacturer": "Geek Magic",
+        }
+        self._attr_current_option = None
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self._entry.entry_id}_image_select"
+
+    @property
+    def options(self) -> list[str]:
+        """Return allowed options."""
+        return self.coordinator.data.get("images") or []
+
+    async def async_select_option(self, option: str) -> None:
+        """Change the selected option."""
+        await self.coordinator.client.async_set_image(option)
+        self._attr_current_option = option
+        self.async_write_ha_state() 
+        # We don't necessarily need to refresh coordinator as image list might not change, 
+        # and current image isn't in coordinator data. But good practice? 
+        # Maybe not needed if we track locally.
