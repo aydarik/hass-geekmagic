@@ -1,13 +1,13 @@
 """Number entities for Geek Magic."""
 from __future__ import annotations
 
-from homeassistant.components.number import NumberEntity
+from homeassistant.components.number import NumberEntity, NumberMode
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
+from .const import DOMAIN, CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL
 from .coordinator import GeekMagicDataUpdateCoordinator
 
 async def async_setup_entry(
@@ -21,6 +21,7 @@ async def async_setup_entry(
     async_add_entities(
         [
             GeekMagicBrightnessNumber(coordinator, entry),
+            GeekMagicUpdateIntervalNumber(coordinator, entry),
         ]
     )
 
@@ -40,9 +41,6 @@ class GeekMagicNumber(CoordinatorEntity, NumberEntity):
             "name": entry.title,
             "manufacturer": "Geek Magic",
         }
-
-
-
 
 
 class GeekMagicBrightnessNumber(GeekMagicNumber):
@@ -71,3 +69,41 @@ class GeekMagicBrightnessNumber(GeekMagicNumber):
         """Set the value."""
         await self.coordinator.client.async_set_brightness(int(value))
         await self.coordinator.async_request_refresh()
+
+
+class GeekMagicUpdateIntervalNumber(GeekMagicNumber):
+    """Update interval configuration number."""
+
+    _attr_name = "Update Interval"
+    _attr_unique_id = "update_interval"
+    _attr_native_min_value = 5
+    _attr_native_max_value = 300
+    _attr_native_step = 5
+    _attr_native_unit_of_measurement = "s"
+    _attr_icon = "mdi:timer"
+    _attr_mode = NumberMode.BOX
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self._entry.entry_id}_update_interval"
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the current value."""
+        return self._entry.options.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
+
+    async def async_set_native_value(self, value: float) -> None:
+        """Set the value."""
+        interval_seconds = int(value)
+        
+        # Update the config entry options
+        new_options = dict(self._entry.options)
+        new_options[CONF_UPDATE_INTERVAL] = interval_seconds
+        self.hass.config_entries.async_update_entry(self._entry, options=new_options)
+        
+        # Update the coordinator's interval
+        self.coordinator.update_interval_seconds(interval_seconds)
+        
+        # Write the new state
+        self.async_write_ha_state()

@@ -32,6 +32,7 @@ async def async_setup_entry(
         [
             GeekMagicThemeSelect(coordinator, entry),
             GeekMagicImageSelect(coordinator, entry),
+            GeekMagicSmallImageSelect(coordinator, entry),
         ]
     )
 
@@ -110,7 +111,39 @@ class GeekMagicImageSelect(CoordinatorEntity, SelectEntity):
         """Change the selected option."""
         await self.coordinator.client.async_set_image(option)
         self._attr_current_option = option
-        self.async_write_ha_state() 
-        # We don't necessarily need to refresh coordinator as image list might not change, 
-        # and current image isn't in coordinator data. But good practice? 
-        # Maybe not needed if we track locally.
+        self.async_write_ha_state()
+
+
+class GeekMagicSmallImageSelect(CoordinatorEntity, SelectEntity):
+    """Small (Weather) Image select with local state tracking."""
+
+    _attr_name = "Small Image"
+    _attr_unique_id = "small_image_select"
+
+    def __init__(self, coordinator: GeekMagicDataUpdateCoordinator, entry: ConfigEntry) -> None:
+        """Initialize the entity."""
+        super().__init__(coordinator)
+        self._attr_has_entity_name = True
+        self._entry = entry
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": entry.title,
+            "manufacturer": "Geek Magic",
+        }
+        self._attr_current_option = None
+
+    @property
+    def unique_id(self) -> str:
+        """Return unique ID."""
+        return f"{self._entry.entry_id}_small_image_select"
+
+    @property
+    def options(self) -> list[str]:
+        """Return allowed options."""
+        return self.coordinator.data.get("small_images") or []
+
+    async def async_select_option(self, option: str) -> None:
+        """Change the selected option."""
+        await self.coordinator.client.async_set_small_image(option)
+        self._attr_current_option = option
+        self.async_write_ha_state()

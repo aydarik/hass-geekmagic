@@ -6,6 +6,8 @@ DEFAULT_NAME = "Geek Magic"
 
 CONF_RENDER_URL = "render_url"
 CONF_HTML_TEMPLATE = "html_template"
+CONF_UPDATE_INTERVAL = "update_interval"
+DEFAULT_UPDATE_INTERVAL = 30
 
 DEFAULT_HTML_TEMPLATE = """<html lang='en'>
 <head>

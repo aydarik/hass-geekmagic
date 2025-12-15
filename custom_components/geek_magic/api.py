@@ -37,7 +37,7 @@ class GeekMagicApiClient:
 
     async def async_get_images(self) -> list[str]:
         """Get list of images."""
-        # /filelist?dir=/image/ returns HTML
+        # /filelist?dir=/image returns HTML
         # The device sends duplicate Content-Length headers which aiohttp rejects.
         # We use requests (via executor) as a workaround.
         loop = asyncio.get_running_loop()
@@ -46,7 +46,7 @@ class GeekMagicApiClient:
             import requests
             resp = requests.get(
                 f"{self._url}/filelist", 
-                params={"dir": "/image/"},
+                params={"dir": "/image"},
                 timeout=10
             )
             resp.raise_for_status()
@@ -58,8 +58,35 @@ class GeekMagicApiClient:
              _LOGGER.error("Error fetching images: %s", err)
              return []
 
-        # Pattern: href='/image//1.gif' -> 1.gif
-        matches = re.findall(r"href='/image//([^']+)'", html)
+        # Pattern: href='/image/1.gif' -> 1.gif
+        matches = re.findall(r"href='/image/([^']+)'", html)
+        return matches
+
+    async def async_get_small_images(self) -> list[str]:
+        """Get list of small (weather) images."""
+        # /filelist?dir=/gif returns HTML
+        # The device sends duplicate Content-Length headers which aiohttp rejects.
+        # We use requests (via executor) as a workaround.
+        loop = asyncio.get_running_loop()
+        
+        def _fetch():
+            import requests
+            resp = requests.get(
+                f"{self._url}/filelist", 
+                params={"dir": "/gif"},
+                timeout=10
+            )
+            resp.raise_for_status()
+            return resp.text
+
+        try:
+             html = await loop.run_in_executor(None, _fetch)
+        except Exception as err:
+             _LOGGER.error("Error fetching images: %s", err)
+             return []
+
+        # Pattern: href='/gif/1.gif' -> 1.gif
+        matches = re.findall(r"href='/gif/([^']+)'", html)
         return matches
 
     async def async_set_theme(self, theme_id: int) -> None:
@@ -76,6 +103,11 @@ class GeekMagicApiClient:
         await self._api_wrapper("get", "set", params={"img": f"/image/{filename}"}, is_json=False)
         # Switch to theme 3 (Photo Album)
         await self.async_set_theme(3)
+
+    async def async_set_small_image(self, filename: str) -> None:
+        """Set the small (weather) image."""
+        # /set?img=/gif/<filename>
+        await self._api_wrapper("get", "set", params={"gif": f"/gif/{filename}"}, is_json=False)
 
     async def async_upload_file(self, file_data: bytes, filename: str) -> None:
         """Upload a file to the device."""

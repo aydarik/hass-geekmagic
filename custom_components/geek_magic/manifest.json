@@ -3,9 +3,9 @@
   "name": "Geek Magic",
   "codeowners": [],
   "config_flow": true,
-  "documentation": "https://github.com/aydar/geek_magic",
+  "documentation": "https://github.com/aydarik/hass-geekmagic",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/aydar/geek_magic/issues",
+  "issue_tracker": "https://github.com/aydarik/hass-geekmagic/issues",
   "requirements": [],
-  "version": "1.1.1"
+  "version": "1.1.2"
 }

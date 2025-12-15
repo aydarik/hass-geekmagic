@@ -16,6 +16,8 @@ from .const import (
     CONF_RENDER_URL,
     CONF_HTML_TEMPLATE,
     DEFAULT_HTML_TEMPLATE,
+    CONF_UPDATE_INTERVAL,
+    DEFAULT_UPDATE_INTERVAL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -32,7 +34,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     
     session = async_get_clientsession(hass)
     client = GeekMagicApiClient(session=session, url=url)
-    coordinator = GeekMagicDataUpdateCoordinator(hass, client)
+    
+    # Get update interval from options or use default
+    update_interval = entry.options.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
+    coordinator = GeekMagicDataUpdateCoordinator(hass, client, update_interval)
 
     await coordinator.async_config_entry_first_refresh()
 
