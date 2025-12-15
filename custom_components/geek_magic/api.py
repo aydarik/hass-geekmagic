@@ -4,7 +4,7 @@ import socket
 import aiohttp
 import async_timeout
 import random
-import random
+
 import time
 import logging
 import re
@@ -21,12 +21,7 @@ class GeekMagicApiClient:
 
     async def async_get_data(self) -> dict:
         """Get data from the API."""
-        # Fetch both theme and brightness in parallel could be better,
-        # but for simplicity and error handling let's do sequential for now or gather.
-        # However, the requirement says: 
-        # get values from <urs>/app.json | jq -r '.theme'
-        # get values from <urs>/brt.json | jq -r '.brt'
-        
+        # Fetch both theme and brightness
         theme_data = await self._api_wrapper("get", "app.json")
         brt_data = await self._api_wrapper("get", "brt.json")
         
@@ -51,7 +46,7 @@ class GeekMagicApiClient:
             import requests
             resp = requests.get(
                 f"{self._url}/filelist", 
-                params={"dir": "/image/", "_": int(time.time() * 1000) + random.randint(0, 1000)},
+                params={"dir": "/image/"},
                 timeout=10
             )
             resp.raise_for_status()
@@ -64,7 +59,6 @@ class GeekMagicApiClient:
              return []
 
         # Pattern: href='/image//1.gif' -> 1.gif
-        # Note: User example shows /image//filename.gif
         matches = re.findall(r"href='/image//([^']+)'", html)
         return matches
 
@@ -80,22 +74,60 @@ class GeekMagicApiClient:
         """Set the image."""
         # /set?img=/image/<filename>
         await self._api_wrapper("get", "set", params={"img": f"/image/{filename}"}, is_json=False)
+        # Switch to theme 3 (Photo Album)
+        await self.async_set_theme(3)
 
-    async def _api_wrapper(self, method: str, url: str, data: dict | None = None, params: dict | None = None, is_json: bool = True) -> dict | str:
+    async def async_upload_file(self, file_data: bytes, filename: str) -> None:
+        """Upload a file to the device."""
+        # /doUpload?dir=/image/
+        # The device sends duplicate Content-Length headers which aiohttp rejects.
+        # We use requests (via executor) as a workaround.
+        loop = asyncio.get_running_loop()
+
+        def _upload():
+            import requests
+            # files argument for requests handles multipart
+            files = {"file": (filename, file_data, "image/jpeg")}
+            
+            resp = requests.post(
+                f"{self._url}/doUpload",
+                params={"dir": "/image/"},
+                files=files,
+                timeout=20
+            )
+            if resp.status_code != 200:
+                 _LOGGER.error("Upload failed: %s %s", resp.status_code, resp.text)
+            resp.raise_for_status()
+
+        await loop.run_in_executor(None, _upload)
+
+    async def _api_wrapper(self, method: str, url: str, data: dict | aiohttp.FormData | None = None, params: dict | None = None, is_json: bool = True) -> dict | str:
         """Get information from the API."""
         if params is None:
             params = {}
-        params["_"] = int(time.time() * 1000) + random.randint(0, 1000)
+
+        headers = {}
+        request_kwargs = {
+            "method": method,
+            "url": f"{self._url}/{url}",
+            "params": params,
+        }
+
+        if data is not None:
+            if isinstance(data, dict):
+                 headers["Content-type"] = "application/json; charset=UTF-8"
+                 request_kwargs["json"] = data
+            else:
+                 # FormData or other types (like bytes, string), let aiohttp handle content-type
+                 request_kwargs["data"] = data
+        else:
+             headers["Content-type"] = "application/json; charset=UTF-8"
+
+        request_kwargs["headers"] = headers
 
         try:
             async with async_timeout.timeout(10):
-                response = await self._session.request(
-                    method=method,
-                    url=f"{self._url}/{url}",
-                    headers={"Content-type": "application/json; charset=UTF-8"},
-                    json=data,
-                    params=params,
-                )
+                response = await self._session.request(**request_kwargs)
                 _LOGGER.debug("Requesting %s with params %s", f"{self._url}/{url}", params)
                 response.raise_for_status()
                 

@@ -4,10 +4,22 @@ from __future__ import annotations
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
+
+import logging
 from .api import GeekMagicApiClient
-from .const import DOMAIN, CONF_IP_ADDRESS
+from .const import (
+    DOMAIN,
+    CONF_IP_ADDRESS,
+    CONF_RENDER_URL,
+    CONF_HTML_TEMPLATE,
+    DEFAULT_HTML_TEMPLATE,
+)
+
+_LOGGER = logging.getLogger(__name__)
+
 from .coordinator import GeekMagicDataUpdateCoordinator
 
 PLATFORMS: list[Platform] = [Platform.NUMBER, Platform.SELECT, Platform.SENSOR]
@@ -25,6 +37,80 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await coordinator.async_config_entry_first_refresh()
 
     hass.data[DOMAIN][entry.entry_id] = coordinator
+
+    # Register service in `async_setup_entry` but check if it's already registered.
+    if not hass.services.has_service(DOMAIN, "send_html"):
+        async def handle_send_html(call):
+            entity_ids = call.data.get("entity_id")
+            subject = call.data.get("subject", "")
+            text = call.data.get("text", "")
+            html = call.data.get("html")
+
+            if not entity_ids:
+                return
+            
+            if isinstance(entity_ids, str):
+                entity_ids = [entity_ids]
+            
+            for entity_id in entity_ids:
+                # Find the config entry for this entity
+                # This is a bit tricky from just entity_id string.
+                # We can look up the entity in the entity registry.
+                ent_reg = entity_registry.async_get(hass)
+                entry = ent_reg.async_get(entity_id)
+                if not entry or not entry.config_entry_id:
+                    continue
+                
+                config_entry_id = entry.config_entry_id
+                if config_entry_id not in hass.data[DOMAIN]:
+                    continue
+                
+                coordinator = hass.data[DOMAIN][config_entry_id]
+                client = coordinator.client
+
+                # Get options
+                config_entry_obj = hass.config_entries.async_get_entry(config_entry_id)
+                render_url = config_entry_obj.options.get(CONF_RENDER_URL)
+                html_template = config_entry_obj.options.get(CONF_HTML_TEMPLATE, DEFAULT_HTML_TEMPLATE)
+
+                if not render_url:
+                    _LOGGER.error("Render URL not configured for Geek Magic device")
+                    continue
+
+                if not html:
+                    if not subject and not text:
+                         _LOGGER.error("No html, subject, or text provided")
+                         continue
+                    # Use template
+                    html_content = html_template.replace("subject", str(subject)).replace("text", str(text))
+                else:
+                    html_content = html
+
+                # Render HTML
+                try:
+                    async with session.post(
+                        render_url, 
+                        json={"html": html_content}, 
+                        headers={"Content-Type": "application/json"}
+                    ) as resp:
+                        if resp.status != 200:
+                            _LOGGER.error("Error rendering HTML: %s", await resp.text())
+                            continue
+                        image_data = await resp.read()
+                except Exception as e:
+                    _LOGGER.error("Error connecting to render service: %s", e)
+                    continue
+
+                # Upload image
+                try:
+                    filename = "geekmagic.jpg"
+                    await client.async_upload_file(image_data, filename)
+                    # Set image
+                    await client.async_set_image(filename)
+                except Exception as e:
+                    _LOGGER.error("Error uploading image: %s", e)
+
+        hass.services.async_register(DOMAIN, "send_html", handle_send_html)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 

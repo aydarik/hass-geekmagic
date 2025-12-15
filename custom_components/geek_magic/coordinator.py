@@ -12,7 +12,9 @@ from homeassistant.helpers.update_coordinator import (
 )
 
 from .api import GeekMagicApiClient
-from .const import DOMAIN, LOGGER
+from .const import DOMAIN
+
+_LOGGER = logging.getLogger(__name__)
 
 class GeekMagicDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Geek Magic data."""
@@ -27,7 +29,7 @@ class GeekMagicDataUpdateCoordinator(DataUpdateCoordinator):
         """Initialize."""
         super().__init__(
             hass=hass,
-            logger=LOGGER,
+            logger=_LOGGER,
             name=DOMAIN,
             update_interval=timedelta(seconds=30),
         )
