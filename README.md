@@ -99,7 +99,7 @@ You can use the [Text2Image](https://github.com/aydarik/text2image) service.
 
 **Run with Docker:**
 ```bash
-docker run -d -p 8000:8000 docker.io/aydarik/text2image
+docker run -d -p 8000:8000 ghcr.io/aydarik/text2image:${ARCH:-amd64}
 ```
 
 The service should:
