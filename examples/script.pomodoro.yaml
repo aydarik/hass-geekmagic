@@ -1,0 +1,129 @@
+sequence:
+  - variables:
+      full: "{{ minutes | default(30) }}"
+      left: "{{ full }}"
+      html_template: |
+        <html lang="en">
+        <head>
+            <title>Pomodoro</title>
+            <style>
+                :root {
+                    --size: 240px;
+                    --accent: #ff7a59;
+                }
+                html, body {
+                    height: 100%;
+                    margin: 0;
+                    font-family: Roboto, sans-serif;
+                    background: black;
+                    color: white;
+                }
+                .frame {
+                    width: var(--size);
+                    height: var(--size);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .timer-wrap {
+                    position: relative;
+                    width: 220px;
+                    height: 220px;
+                    display: grid;
+                    place-items: center
+                }
+                svg {
+                    width: 100%;
+                    height: 100%;
+                }
+                .ring-bg {
+                    fill: none;
+                    stroke: #222;
+                    stroke-width: 12
+                }
+                .ring {
+                    fill: none;
+                    stroke: var(--accent);
+                    stroke-width: 12;
+                    stroke-linecap: round;
+                    stroke-dasharray: 251.2;
+                    stroke-dashoffset: 0;
+                }
+                .center {
+                    position: absolute;
+                    inset: 0;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .time {
+                    font-size: 56px;
+                    font-weight: 700;
+                    line-height: 1;
+                }
+                .unit {
+                    font-size: 20px;
+                    font-weight: 400;
+                    color: #ccc;
+                    margin-top: 5px;
+                }
+            </style>
+        </head>
+        <body>
+        <div class="frame">
+            <div class="timer-wrap">
+                <svg viewBox="0 0 100 100">
+                    <circle class="ring-bg" cx="50" cy="50" r="40"></circle>
+                    <circle class="ring" cx="50" cy="50" r="40"></circle>
+                </svg>
+                <div class="center">
+                    <div class="time" id="timetext"></div>
+                    <div class="unit">min</div>
+                </div>
+            </div>
+        </div>
+        <script>
+            const fullMinutes = $full;
+            const leftMinutes = $left;
+            const displayElement = document.getElementById('timetext');
+            displayElement.innerHTML = leftMinutes;
+            const ring = document.querySelector('.ring');
+            const circumference = 2 * Math.PI * 40;
+            ring.style.strokeDasharray = circumference;
+            const ratio = leftMinutes / fullMinutes;
+            const offset = circumference * (1 - ratio);
+            ring.style.strokeDashoffset = offset;
+        </script>
+        </body>
+        </html>
+  - repeat:
+      while:
+        - condition: template
+          value_template: "{{ left > 0 }}"
+      sequence:
+        - variables:
+            html: >-
+              {{ html_template | replace("$full", full) | replace("$left", left)
+              }}
+            left: "{{ left - 1 }}"
+        - parallel:
+            - action: geek_magic.send_html
+              metadata: {}
+              data:
+                entity_id: select.geek_magic_image
+                html: "{{ html }}"
+            - delay:
+                hours: 0
+                minutes: 1
+                seconds: 0
+                milliseconds: 0
+  - action: select.select_option
+    metadata: {}
+    target:
+      entity_id: select.geek_magic_image
+    data:
+      option: good_job.gif
+alias: Pomodoro
+description: ""
+mode: restart

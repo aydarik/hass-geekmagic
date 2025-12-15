@@ -1,6 +1,10 @@
 # Geek Magic Home Assistant Integration
 
+[![HACS](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
+
 This custom component enables integration with the **Geek Magic** smart display device in Home Assistant.
+
+![Home stats](https://raw.githubusercontent.com/aydarik/hass-geekmagic/refs/heads/main/images/home_stats.jpg) ![Pomodoro](https://raw.githubusercontent.com/aydarik/hass-geekmagic/refs/heads/main/images/pomodoro.jpg)
 
 ## Features
 
