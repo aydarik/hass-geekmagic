@@ -13,6 +13,19 @@ This custom component enables integration with the **Geek Magic** smart display 
 
 ## Installation
 
+### HACS (Recommended)
+
+1.  Open **HACS** in Home Assistant.
+2.  Go to **Integrations**.
+3.  Click the three dots in the top right corner and select **Custom repositories**.
+4.  Add the URL of this repository.
+5.  Select **Integration** as the category.
+6.  Click **Add**.
+7.  Find **Geek Magic** in the integration list and install it.
+8.  Restart Home Assistant.
+
+### Manual Installation
+
 1.  Copy the `custom_components/geek_magic` directory to your Home Assistant `config/custom_components/` directory.
 2.  Restart Home Assistant.
 3.  Go to **Settings > Devices & Services > Add Integration**.
@@ -41,7 +54,7 @@ Sends a message or custom HTML to the device. The content is rendered to a 240x2
 **Parameters:**
 
 | Name | Type | Description | Required |
-|Data | | | |
+| :--- | :--- | :--- | :--- |
 | `entity_id` | string | The entity ID of the Geek Magic device (e.g. `sensor.geek_magic_free_space`) | Yes |
 | `subject` | string | Title/Subject text to display (inserted into template) | No* |
 | `text` | string | Body text to display (inserted into template) | No* |
