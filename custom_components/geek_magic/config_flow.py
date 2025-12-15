@@ -83,7 +83,7 @@ class GeekMagicOptionsFlowHandler(config_entries.OptionsFlow):
 
     def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
         """Initialize options flow."""
-        self.config_entry = config_entry
+        self._config_entry = config_entry
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
@@ -98,11 +98,11 @@ class GeekMagicOptionsFlowHandler(config_entries.OptionsFlow):
                 {
                     vol.Optional(
                         CONF_RENDER_URL,
-                        default=self.config_entry.options.get(CONF_RENDER_URL, ""),
+                        default=self._config_entry.options.get(CONF_RENDER_URL, ""),
                     ): str,
                     vol.Optional(
                         CONF_HTML_TEMPLATE,
-                        default=self.config_entry.options.get(
+                        default=self._config_entry.options.get(
                             CONF_HTML_TEMPLATE, DEFAULT_HTML_TEMPLATE
                         ),
                     ): str,

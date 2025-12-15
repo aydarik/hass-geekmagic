@@ -1,0 +1,27 @@
+send_html:
+  name: Send HTML
+  description: Renders HTML to an image and displays it on the Geek Magic device.
+  fields:
+    entity_id:
+      name: Entity
+      description: Name(s) of the Geek Magic entities.
+      required: true
+      selector:
+        entity:
+          integration: geek_magic
+    subject:
+      name: Subject
+      description: The subject/title to display.
+      selector:
+        text:
+    text:
+      name: Text
+      description: The main text message to display.
+      selector:
+        text:
+    html:
+      name: HTML Content
+      description: Raw HTML content to render. Overrides subject and text.
+      selector:
+        text:
+          multiline: true
