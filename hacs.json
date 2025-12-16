@@ -1,6 +1,4 @@
 {
     "name": "Geek Magic",
-    "render_readme": true,
-    "content_in_root": false,
-    "filename": "geek_magic.zip"
+    "content_in_root": false
 }
