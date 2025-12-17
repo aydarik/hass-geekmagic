@@ -97,13 +97,22 @@ data:
 
 This integration requires an external service to convert HTML to an image if you use the `send_html` feature.
 
-**Recommended Renderer:**
+### Predefined Renderer
+
+The integration comes with a **predefined renderer** (`https://text2image.gumerbaev.ru/render`) that works out of the box. However, for privacy reasons, we **strongly recommend** spinning up your own instance, as the HTML content (which may include sensitive data from your smart home) will be sent to an external server.
+
+### Self-Hosted Renderer (Recommended)
+
 You can use the [Text2Image](https://github.com/aydarik/text2image) service.
 
 **Run with Docker:**
 ```bash
 docker run -d -p 8000:8000 ghcr.io/aydarik/text2image:${ARCH:-amd64}
 ```
+
+Then configure the **Render URL** in the integration settings to point to your local instance (e.g., `http://192.168.1.50:8000/render`).
+
+### API Specification
 
 The service should:
 - Accept a POST request.

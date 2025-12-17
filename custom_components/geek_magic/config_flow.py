@@ -18,6 +18,7 @@ from .const import (
     CONF_IP_ADDRESS,
     DEFAULT_NAME,
     CONF_RENDER_URL,
+    DEFAULT_RENDER_URL,
     CONF_HTML_TEMPLATE,
     DEFAULT_HTML_TEMPLATE,
 )
@@ -28,7 +29,7 @@ LOGGER = logging.getLogger(__name__)
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_IP_ADDRESS): str,
-        vol.Optional(CONF_RENDER_URL): str,
+        vol.Optional(CONF_RENDER_URL, default=DEFAULT_RENDER_URL): str,
         vol.Optional(CONF_HTML_TEMPLATE, default=DEFAULT_HTML_TEMPLATE): str,
     }
 )
@@ -54,7 +55,7 @@ class GeekMagicConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             else:
                 data = {CONF_IP_ADDRESS: user_input.get(CONF_IP_ADDRESS)}
                 options = {
-                    CONF_RENDER_URL: user_input.get(CONF_RENDER_URL),
+                    CONF_RENDER_URL: user_input.get(CONF_RENDER_URL, DEFAULT_RENDER_URL),
                     CONF_HTML_TEMPLATE: user_input.get(CONF_HTML_TEMPLATE, DEFAULT_HTML_TEMPLATE),
                 }
                 return self.async_create_entry(title=DEFAULT_NAME, data=data, options=options)
@@ -98,7 +99,7 @@ class GeekMagicOptionsFlowHandler(config_entries.OptionsFlow):
                 {
                     vol.Optional(
                         CONF_RENDER_URL,
-                        default=self._config_entry.options.get(CONF_RENDER_URL, ""),
+                        default=self._config_entry.options.get(CONF_RENDER_URL, DEFAULT_RENDER_URL),
                     ): str,
                     vol.Optional(
                         CONF_HTML_TEMPLATE,
