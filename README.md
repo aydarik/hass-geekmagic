@@ -72,9 +72,8 @@ Sends a message or custom HTML to the device. The content is rendered to a 240x2
 **Example: Sending a Notification**
 ```yaml
 action: geek_magic.send_html
-target:
-  entity_id: select.geek_magic_image
 data:
+  entity_id: select.geek_magic_image
   subject: "Alert"
   text: "Washing Machine Finished!"
 ```
@@ -82,9 +81,8 @@ data:
 **Example: Sending Custom HTML**
 ```yaml
 action: geek_magic.send_html
-target:
-  entity_id: select.geek_magic_image
 data:
+  entity_id: select.geek_magic_image
   html: >
     <html>
       <body style="background: red; color: white;">
