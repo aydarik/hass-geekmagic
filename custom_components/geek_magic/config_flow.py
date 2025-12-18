@@ -45,6 +45,15 @@ class GeekMagicConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle the initial step."""
         errors: dict[str, str] = {}
         if user_input is not None:
+            # Clean up IP address if it was entered as a URL
+            ip_address = user_input[CONF_IP_ADDRESS].strip().rstrip("/")
+            if ip_address.startswith("http://"):
+                ip_address = ip_address[7:]
+            elif ip_address.startswith("https://"):
+                ip_address = ip_address[8:]
+            
+            user_input[CONF_IP_ADDRESS] = ip_address
+
             try:
                 # Construct URL from IP
                 url = f"http://{user_input[CONF_IP_ADDRESS]}"

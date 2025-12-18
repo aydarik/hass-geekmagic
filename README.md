@@ -22,6 +22,10 @@ This custom component enables integration with the **Geek Magic** smart display 
 
 ### HACS (Recommended)
 
+[![Add to HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=aydarik&repository=hass-geekmagic&category=integration)
+
+or manually:
+
 1.  Open **HACS** in Home Assistant.
 2.  Go to **Integrations**.
 3.  Click the three dots in the top right corner and select **Custom repositories**.
