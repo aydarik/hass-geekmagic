@@ -62,34 +62,80 @@ Sends a message or custom HTML to the device. The content is rendered to a 240x2
 
 | Name | Type | Description | Required |
 | :--- | :--- | :--- | :--- |
-| `entity_id` | string | The entity ID of the Geek Magic device (e.g. `sensor.geek_magic_free_space`) | Yes |
+| `entity_id` | string | The entity ID of the Geek Magic device (e.g. `sensor.geek_magic_image`) | Yes |
 | `subject` | string | Title/Subject text to display (inserted into template) | No* |
 | `text` | string | Body text to display (inserted into template) | No* |
 | `html` | string | Raw HTML to render. Overrides `subject` and `text`. | No* |
 
 *\*Either `html` OR (`subject` and `text`) must be provided.*
 
-**Example: Sending a Notification**
+**Example: Sending a simple notification**
 ```yaml
 action: geek_magic.send_html
 data:
   entity_id: select.geek_magic_image
   subject: "Alert"
-  text: "Washing Machine Finished!"
+  text: "Washing Machine finished!"
 ```
+![Custom HTML](images/render_simple.jpg)
 
-**Example: Sending Custom HTML**
+**Example: Sending a complex notification**
 ```yaml
 action: geek_magic.send_html
 data:
   entity_id: select.geek_magic_image
-  html: >
-    <html>
-      <body style="background: red; color: white;">
-        <h1>Warning</h1>
-      </body>
+  subject: Main door
+  text: |
+    <img style="max-width: 100%; max-height: 100%" src="https://pingvin.gumerbaev.ru/api/shares/lyocRqMH/files/6d9a967e-41ac-408a-b3b4-b9ba2b883036?download=false">
+
+```
+![Custom HTML](images/render_camera.jpg)
+
+**Example: Sending completely custom HTML**
+```yaml
+action: geek_magic.send_html
+data:
+  entity_id: select.geek_magic_image
+  html: |
+    <html lang="en">
+    <head>
+        <title>Neon Clock</title>
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                background: #121212;
+            }
+            .clock {
+                width: 240px;
+                height: 240px;
+                border-radius: 50%;
+                background: #1e1e1e;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-family: Arial, sans-serif;
+                font-size: 48px;
+                font-weight: bold;
+                color: #00ffae;
+                box-shadow: 0 0 15px rgba(0, 255, 174, 0.5);
+            }
+        </style>
+    </head>
+    <body>
+    <div class="clock" id="clock"></div>
+    <script>
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('clock').textContent = `${hours}:${minutes}`;
+    </script>
+    </body>
     </html>
 ```
+![Custom HTML](images/render_alert.jpg)
 
 ## Render API Requirement
 
