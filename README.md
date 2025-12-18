@@ -107,10 +107,10 @@ You can use the [Text2Image](https://github.com/aydarik/text2image) service.
 
 **Run with Docker:**
 ```bash
-docker run -d -p 8000:8000 ghcr.io/aydarik/text2image:${ARCH:-amd64}
+docker run -d -p 8000:8000 ghcr.io/aydarik/text2image:latest
 ```
 
-Then configure the **Render URL** in the integration settings to point to your local instance (e.g., `http://192.168.1.50:8000/render`).
+Then configure the **Render URL** in the integration settings to point to your local instance (e.g., `http://0.0.0.0:8000/render`).
 
 ### API Specification
 
