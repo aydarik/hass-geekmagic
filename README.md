@@ -12,11 +12,11 @@ This custom component enables integration with the **Geek Magic** smart display 
   - Select Images.
 - **Sensors**: Monitor free space on the device.
 
-![Controls](https://raw.githubusercontent.com/aydarik/hass-geekmagic/refs/heads/main/images/controls.png)
+![Controls](images/screenshot_controls.png)
 
 - **HTML Rendering & Upload**: Send text or raw HTML to the device, which is rendered to an image and uploaded automatically.
 
-![Home stats](https://raw.githubusercontent.com/aydarik/hass-geekmagic/refs/heads/main/images/home_stats.jpg) ![Pomodoro](https://raw.githubusercontent.com/aydarik/hass-geekmagic/refs/heads/main/images/pomodoro.jpg)
+![Home stats](images/photo_home_stats.jpg) ![Pomodoro](images/photo_pomodoro.jpg)
 
 ## Installation
 
