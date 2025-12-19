@@ -153,12 +153,24 @@ The integration comes with a **predefined renderer** (`https://text2image.gumerb
 
 You can use the [Text2Image](https://github.com/aydarik/text2image) service.
 
-**Run with Docker:**
+#### Home Assistant Add-on
+
+[![Add to Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Faydarik%2Fhass-addons)
+
+##### Manual installation
+
+1.  Add the repository URL to your Home Assistant Add-on Store repositories:
+    `https://github.com/aydarik/hass-addons`
+2.  Install the "Text2Image" add-on.
+3.  Start the add-on.
+
+#### Docker
+
 ```bash
 docker run -d -p 8000:8000 ghcr.io/aydarik/text2image:latest
 ```
 
-Then configure the **Render URL** in the integration settings to point to your local instance (e.g., `http://0.0.0.0:8000/render`).
+> Then configure the **Render URL** in the integration settings to point to your local instance (e.g., `http://0.0.0.0:8000/render`).
 
 ### API Specification
 
