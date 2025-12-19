@@ -58,9 +58,9 @@ class GeekMagicConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 # Construct URL from IP
                 url = f"http://{user_input[CONF_IP_ADDRESS]}"
                 await self._test_credentials(url)
-            except Exception:  # pylint: disable=broad-except
-                LOGGER.exception("Unexpected exception")
-                errors["base"] = "cannot_connect"
+            except Exception as e:  # pylint: disable=broad-except
+                LOGGER.exception("Unexpected exception: %s", e)
+                errors["base"] = str(e) or "unknown_error"
             else:
                 data = {CONF_IP_ADDRESS: user_input.get(CONF_IP_ADDRESS)}
                 options = {
