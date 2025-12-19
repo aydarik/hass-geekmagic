@@ -18,6 +18,9 @@ class GeekMagicApiClient:
         """Initialize the API client."""
         self._session = session
         self._url = url.rstrip("/")
+        self._theme = None
+        self._brt = None
+        self._free_space = None
 
     async def async_get_data(self) -> dict:
         """Get data from the API."""
@@ -25,15 +28,22 @@ class GeekMagicApiClient:
         theme_data = await self._api_wrapper("get", "app.json")
         brt_data = await self._api_wrapper("get", "brt.json")
         
+        if theme_data is not None:
+            self._theme = theme_data.get("theme")
+        if brt_data is not None:
+            self._brt = brt_data.get("brt")
+            
         return {
-            "theme": theme_data.get("theme"),
-            "brt": brt_data.get("brt"),
+            "theme": self._theme,
+            "brt": self._brt,
         }
 
     async def async_get_space(self) -> int | None:
         """Get free space in bytes."""
         data = await self._api_wrapper("get", "space.json")
-        return data.get("free")
+        if data is not None:
+            self._free_space = data.get("free")
+        return self._free_space
 
     async def async_get_images(self) -> list[str]:
         """Get list of images."""
@@ -161,6 +171,11 @@ class GeekMagicApiClient:
             async with async_timeout.timeout(10):
                 response = await self._session.request(**request_kwargs)
                 _LOGGER.debug("Requesting %s with params %s", f"{self._url}/{url}", params)
+                
+                if response.status == 404:
+                    _LOGGER.info("404 received from %s, using last known value if available", f"{self._url}/{url}")
+                    return None
+                    
                 response.raise_for_status()
                 
                 if is_json:
