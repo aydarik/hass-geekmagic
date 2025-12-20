@@ -47,23 +47,41 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if not hass.services.has_service(DOMAIN, "send_html"):
         async def handle_send_html(call):
             device_ids = call.data.get("device_id")
+            entity_ids = call.data.get("entity_id")
             subject = call.data.get("subject", "")
             text = call.data.get("text", "")
             html = call.data.get("html")
             cache = call.data.get("cache", True)
+
+            if entity_ids:
+                _LOGGER.warning("The 'entity_id' parameter is deprecated, please use 'device_id' instead")
+                if isinstance(entity_ids, str):
+                    entity_ids = [entity_ids]
+
+                ent_reg = entity_registry.async_get(hass)
+                if device_ids is None:
+                    device_ids = []
+                elif isinstance(device_ids, str):
+                    device_ids = [device_ids]
+
+                for entity_id in entity_ids:
+                    entry = ent_reg.async_get(entity_id)
+                    if entry and entry.device_id:
+                        if entry.device_id not in device_ids:
+                            device_ids.append(entry.device_id)
 
             # Collect coordinators based on device_ids or all configured devices
             coordinators = []
             if device_ids:
                 if isinstance(device_ids, str):
                     device_ids = [device_ids]
-                
+
                 dev_reg = dr.async_get(hass)
                 for device_id in device_ids:
                     device_entry = dev_reg.async_get(device_id)
                     if not device_entry or not device_entry.config_entries:
                         continue
-                    
+
                     config_entry_id = next(iter(device_entry.config_entries))
                     if config_entry_id in hass.data[DOMAIN]:
                         coordinators.append(hass.data[DOMAIN][config_entry_id])
@@ -123,8 +141,26 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         async def handle_send_image(call):
             device_ids = call.data.get("device_id")
+            entity_ids = call.data.get("entity_id")
             image_path = call.data.get("image_path")
             resize_mode = call.data.get("resize_mode", "stretch")
+
+            if entity_ids:
+                _LOGGER.warning("The 'entity_id' parameter is deprecated, please use 'device_id' instead")
+                if isinstance(entity_ids, str):
+                    entity_ids = [entity_ids]
+
+                ent_reg = entity_registry.async_get(hass)
+                if device_ids is None:
+                    device_ids = []
+                elif isinstance(device_ids, str):
+                    device_ids = [device_ids]
+
+                for entity_id in entity_ids:
+                    entry = ent_reg.async_get(entity_id)
+                    if entry and entry.device_id:
+                        if entry.device_id not in device_ids:
+                            device_ids.append(entry.device_id)
 
             if not image_path:
                 _LOGGER.error("No image path provided")
@@ -210,13 +246,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             if device_ids:
                 if isinstance(device_ids, str):
                     device_ids = [device_ids]
-                
+
                 dev_reg = dr.async_get(hass)
                 for device_id in device_ids:
                     device_entry = dev_reg.async_get(device_id)
                     if not device_entry or not device_entry.config_entries:
                         continue
-                    
+
                     config_entry_id = next(iter(device_entry.config_entries))
                     if config_entry_id in hass.data[DOMAIN]:
                         coordinator = hass.data[DOMAIN][config_entry_id]

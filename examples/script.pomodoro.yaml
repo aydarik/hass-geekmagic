@@ -109,9 +109,7 @@ sequence:
             left: "{{ left - 1 }}"
         - parallel:
             - action: geek_magic.send_html
-              metadata: {}
               data:
-                entity_id: select.geek_magic_image
                 html: "{{ html }}"
             - delay:
                 hours: 0
@@ -119,7 +117,6 @@ sequence:
                 seconds: 0
                 milliseconds: 0
   - action: select.select_option
-    metadata: {}
     target:
       entity_id: select.geek_magic_image
     data:

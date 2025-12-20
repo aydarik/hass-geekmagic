@@ -64,7 +64,7 @@ If you skipped configuring the Render URL during setup, you can do it later:
 1.  Go to **Settings > Devices & Services**.
 2.  Click **Geek Magic**.
 3.  Click **Configure**.
-4.  **Render URL**: Enter the URL of your rendering service (e.g., `http://192.168.1.50:8000/render`).
+4.  **Render URL**: Enter the URL of your rendering service (e.g., `http://127.0.0.1:8000/render`).
 5.  **HTML Template**: (Optional) Customize the default HTML template used when sending simple subject/text messages.
 
 ## Services
@@ -77,7 +77,7 @@ Sends a message or custom HTML to the device. The content is rendered to a 240x2
 
 | Name | Type | Description | Required |
 | :--- | :--- | :--- | :--- |
-| `entity_id` | string | The entity ID of the Geek Magic device (e.g. `sensor.geek_magic_image`) | Yes |
+| `device_id` | string | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified) | No |
 | `subject` | string | Title/Subject text to display (inserted into template) | No* |
 | `text` | string | Body text to display (inserted into template) | No* |
 | `html` | string | Raw HTML to render. Overrides `subject` and `text`. | No* |
@@ -93,7 +93,6 @@ Sends a message or custom HTML to the device. The content is rendered to a 240x2
 ```yaml
 action: geek_magic.send_html
 data:
-  entity_id: select.geek_magic_image
   subject: "Alert"
   text: "Washing Machine finished!"
 ```
@@ -108,7 +107,6 @@ data:
 ```yaml
 action: geek_magic.send_html
 data:
-  entity_id: select.geek_magic_image
   subject: Main door
   text: |
     <p style="font-size: 84px; padding: 30px 0">🚪🚶</p>
@@ -124,7 +122,6 @@ data:
 ```yaml
 action: geek_magic.send_html
 data:
-  entity_id: select.geek_magic_image
   html: |
     <html lang="en">
     <head>
@@ -170,7 +167,6 @@ data:
 ```yaml
 action: geek_magic.send_html
 data:
-  entity_id: select.geek_magic_image
   html: >
     <html lang="en">
     <head>
@@ -324,7 +320,7 @@ Sends a JPEG image from a local path or URL to the device. The image will be aut
 
 | Field | Type | Description | Required |
 | --- | --- | --- | --- |
-| `entity_id` | string | The entity ID of the Geek Magic device (e.g. `sensor.geek_magic_image`) | Yes |
+| `device_id` | string | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified) | No |
 | `image_path` | string | Local path (e.g., `/config/www/test.jpg`) or URL (e.g., `https://...`) | Yes |
 | `resize_mode` | string | `stretch` (force 240x240), `fit` (longest side 240) or `crop` (center crop to 240x240) | No (default: `stretch`) |
 
@@ -336,7 +332,6 @@ Sends a JPEG image from a local path or URL to the device. The image will be aut
 ```yaml
 action: geek_magic.send_image
 data:
-  entity_id: select.geek_magic_image
   image_path: /config/www/tmp/snapshot_tapo_c200_c094.jpg
 ```
 
@@ -350,7 +345,6 @@ data:
 ```yaml
 action: geek_magic.send_image
 data:
-  entity_id: select.geek_magic_image
   image_path: >-
     https://www.berlin.de/webcams/rathaus/webcam.jpg
   resize_mode: crop
