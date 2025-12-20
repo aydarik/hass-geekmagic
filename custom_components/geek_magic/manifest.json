@@ -8,6 +8,8 @@
   "documentation": "https://github.com/aydarik/hass-geekmagic",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/aydarik/hass-geekmagic/issues",
-  "requirements": [],
-  "version": "1.2.2"
+  "requirements": [
+    "pillow"
+  ],
+  "version": "1.3.0"
 }

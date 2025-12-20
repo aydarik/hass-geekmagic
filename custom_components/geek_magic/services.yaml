@@ -25,3 +25,20 @@ send_html:
       selector:
         text:
           multiline: true
+send_image:
+  name: Send Image
+  description: Sends a JPEG image from a local path or URL to the Geek Magic device.
+  fields:
+    entity_id:
+      name: Entity
+      description: Name(s) of the Geek Magic entities.
+      required: true
+      selector:
+        entity:
+          integration: geek_magic
+    image_path:
+      name: Image Path or URL
+      description: The local path (e.g. /config/www/image.jpg) or URL (https://...) to the JPEG image.
+      required: true
+      selector:
+        text:

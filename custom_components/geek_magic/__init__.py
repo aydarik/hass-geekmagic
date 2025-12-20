@@ -115,7 +115,91 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 except Exception as e:
                     _LOGGER.error("Error uploading image: %s", e)
 
+        async def handle_send_image(call):
+            entity_ids = call.data.get("entity_id")
+            image_path = call.data.get("image_path")
+
+            if not entity_ids or not image_path:
+                return
+
+            if not (image_path.lower().endswith(".jpg") or image_path.lower().endswith(".jpeg")):
+                _LOGGER.error("Only JPEG files are supported: %s", image_path)
+                return
+
+            if isinstance(entity_ids, str):
+                entity_ids = [entity_ids]
+
+            # Fetch image data
+            image_data = None
+            if image_path.startswith("http"):
+                try:
+                    async with session.get(image_path) as resp:
+                        if resp.status != 200:
+                            _LOGGER.error("Error fetching image from URL: %s", resp.status)
+                            return
+                        image_data = await resp.read()
+                except Exception as e:
+                    _LOGGER.error("Error connecting to image URL: %s", e)
+                    return
+            else:
+                # Local file
+                try:
+                    actual_path = image_path
+                    if image_path.startswith("/config/"):
+                        actual_path = hass.config.path(image_path[8:])
+                    
+                    def _read_file():
+                        with open(actual_path, "rb") as f:
+                            return f.read()
+                    
+                    image_data = await hass.async_add_executor_job(_read_file)
+                except Exception as e:
+                    _LOGGER.error("Error reading local image file: %s", e)
+                    return
+
+            if not image_data:
+                return
+
+            # Resize image
+            try:
+                def _resize_image():
+                    import io
+                    from PIL import Image
+                    img = Image.open(io.BytesIO(image_data))
+                    if img.mode != "RGB":
+                        img = img.convert("RGB")
+                    img = img.resize((240, 240), Image.Resampling.LANCZOS)
+                    output = io.BytesIO()
+                    img.save(output, format="JPEG")
+                    return output.getvalue()
+
+                resized_image_data = await hass.async_add_executor_job(_resize_image)
+            except Exception as e:
+                _LOGGER.error("Error resizing image: %s", e)
+                return
+
+            for entity_id in entity_ids:
+                ent_reg = entity_registry.async_get(hass)
+                entry_reg = ent_reg.async_get(entity_id)
+                if not entry_reg or not entry_reg.config_entry_id:
+                    continue
+                
+                config_entry_id = entry_reg.config_entry_id
+                if config_entry_id not in hass.data[DOMAIN]:
+                    continue
+                
+                coordinator = hass.data[DOMAIN][config_entry_id]
+                client = coordinator.client
+
+                try:
+                    filename = "geekmagic.jpg"
+                    await client.async_upload_file(resized_image_data, filename)
+                    await client.async_set_image(filename)
+                except Exception as e:
+                    _LOGGER.error("Error uploading image for %s: %s", entity_id, e)
+
         hass.services.async_register(DOMAIN, "send_html", handle_send_html)
+        hass.services.async_register(DOMAIN, "send_image", handle_send_image)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
