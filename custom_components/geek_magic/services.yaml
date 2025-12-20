@@ -42,3 +42,14 @@ send_image:
       required: true
       selector:
         text:
+    resize_mode:
+      name: Resize Mode
+      description: How to resize the image. "stretch" forces 240x240, "fit" resizes so the longest side is 240.
+      default: stretch
+      selector:
+        select:
+          options:
+            - label: Stretch to 240x240
+              value: stretch
+            - label: Fit to 240 (longest side)
+              value: fit

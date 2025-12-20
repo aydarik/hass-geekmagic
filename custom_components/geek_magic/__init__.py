@@ -118,6 +118,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         async def handle_send_image(call):
             entity_ids = call.data.get("entity_id")
             image_path = call.data.get("image_path")
+            resize_mode = call.data.get("resize_mode", "stretch")
 
             if not entity_ids or not image_path:
                 return
@@ -168,7 +169,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     img = Image.open(io.BytesIO(image_data))
                     if img.mode != "RGB":
                         img = img.convert("RGB")
-                    img = img.resize((240, 240), Image.Resampling.LANCZOS)
+                    
+                    if resize_mode == "stretch":
+                        img = img.resize((240, 240), Image.Resampling.LANCZOS)
+                    else:
+                        # fit / contain: longest side 240
+                        width, height = img.size
+                        if width > height:
+                            new_width = 240
+                            new_height = int(height * (240 / width))
+                        else:
+                            new_height = 240
+                            new_width = int(width * (240 / height))
+                        img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+
                     output = io.BytesIO()
                     img.save(output, format="JPEG")
                     return output.getvalue()
