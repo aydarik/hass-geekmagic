@@ -18,6 +18,10 @@ This custom component enables integration with the **Geek Magic** smart display 
 
 ![Home stats](images/photo_home_stats.jpg) ![Pomodoro](images/photo_pomodoro.jpg)
 
+- **Image Upload**: Send an image from a local path (e.g., camera snapshot) or URL to the device. The image will be automatically resized based on the selected mode.
+
+![Home stats](images/photo_image.jpg)
+
 ## Installation
 
 ### HACS (Recommended)
