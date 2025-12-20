@@ -58,7 +58,7 @@ If you skipped configuring the Render URL during setup, you can do it later:
 
 ## Services
 
-### `geek_magic.send_html`
+### Send HTML
 
 Sends a message or custom HTML to the device. The content is rendered to a 240x240px JPEG and uploaded.
 
@@ -90,7 +90,7 @@ data:
   entity_id: select.geek_magic_image
   subject: Main door
   text: |
-    <img style="max-width: 100%; max-height: 100%" src="https://pingvin.gumerbaev.ru/api/shares/lyocRqMH/files/6d9a967e-41ac-408a-b3b4-b9ba2b883036?download=false">
+    <p style="font-size: 84px; padding: 30px 0">🚪🚶</p>
 
 ```
 ![Custom HTML](images/render_camera.jpg)
@@ -140,6 +140,36 @@ data:
     </html>
 ```
 ![Custom HTML](images/render_alert.jpg)
+
+### Send Image
+
+Sends a JPEG image from a local path or URL to the device. The image will be automatically resized based on the selected mode.
+
+| Field | Type | Description | Required |
+| --- | --- | --- | --- |
+| `entity_id` | string | The entity ID of the Geek Magic device (e.g. `sensor.geek_magic_image`) | Yes |
+| `image_path` | string | Local path (e.g., `/config/www/test.jpg`) or URL (e.g., `https://...`) | Yes |
+| `resize_mode` | string | `stretch` (force 240x240) or `fit` (longest side 240) | No (default: `stretch`) |
+
+**Example: Sending a local image**
+```yaml
+action: geek_magic.send_image
+data:
+  entity_id: select.geek_magic_image
+  image_path: /config/www/tmp/snapshot_tapo_c200_c094.jpg
+```
+![Custom HTML](images/render_image.jpg)
+
+**Example: Sending an image from a URL**
+```yaml
+action: geek_magic.send_image
+data:
+  entity_id: select.geek_magic_image
+  image_path: >-
+    https://raw.githubusercontent.com/home-assistant/assets/refs/heads/master/t-shirt/v5%20-%20rainbow.png
+  resize_mode: fit
+```
+![Custom HTML](images/render_ha_rainbow.jpg)
 
 ## Render API Requirement
 

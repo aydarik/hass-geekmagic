@@ -123,10 +123,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             if not entity_ids or not image_path:
                 return
 
-            if not (image_path.lower().endswith(".jpg") or image_path.lower().endswith(".jpeg")):
-                _LOGGER.error("Only JPEG files are supported: %s", image_path)
-                return
-
             if isinstance(entity_ids, str):
                 entity_ids = [entity_ids]
 
