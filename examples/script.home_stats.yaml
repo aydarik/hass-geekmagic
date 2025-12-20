@@ -1,7 +1,5 @@
 sequence:
   - action: geek_magic.send_html
-    target:
-      entity_id: select.geek_magic_image
     data:
       subject: Home Assistant
       text: >
@@ -10,6 +8,5 @@ sequence:
         states('sensor.average_humidity') | round }}%</p>
         <p style="padding-top:10px;font-size:24px">{{
         states('sensor.esp_1_carbon_dioxide') | round }} ppm</p>
-      entity_id: select.geek_magic_image
 alias: Home stats
 description: ""

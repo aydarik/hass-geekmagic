@@ -3,11 +3,19 @@ send_html:
   description: Renders HTML to an image and displays it on the Geek Magic device.
   fields:
     device_id:
-      name: Device
-      description: The Geek Magic device to send to (if not specified, sends to all devices).
+      name: Devices
+      description: The Geek Magic devices to send to (broadcast to all devices if not specified).
       required: false
       selector:
         device:
+          integration: geek_magic
+          multiple: true
+    entity_id:
+      name: Entity
+      description: "⚠️ DEPRECATED: Use device_id instead. Will be removed in a future release."
+      required: false
+      selector:
+        entity:
           integration: geek_magic
     subject:
       name: Subject
@@ -36,11 +44,19 @@ send_image:
   description: Sends a JPEG image from a local path or URL to the Geek Magic device.
   fields:
     device_id:
-      name: Device
-      description: The Geek Magic device to send to (if not specified, sends to all devices).
+      name: Devices
+      description: The Geek Magic devices to send to (broadcast to all devices if not specified).
       required: false
       selector:
         device:
+          integration: geek_magic
+          multiple: true
+    entity_id:
+      name: Entity
+      description: "⚠️ DEPRECATED: Use device_id instead. Will be removed in a future release."
+      required: false
+      selector:
+        entity:
           integration: geek_magic
     image_path:
       name: Image Path or URL
@@ -50,7 +66,7 @@ send_image:
         text:
     resize_mode:
       name: Resize Mode
-      description: How to resize the image. "stretch" forces 240x240, "fit" resizes so the longest side is 240, "crop" crops the center to 240x240.
+      description: How to resize the image ("stretch" if not specified).
       default: stretch
       selector:
         select:
