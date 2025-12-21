@@ -153,7 +153,7 @@ Sends a JPEG image from a local path or URL to the device. The image will be aut
 | --- | --- | --- | --- |
 | `entity_id` | string | The entity ID of the Geek Magic device (e.g. `sensor.geek_magic_image`) | Yes |
 | `image_path` | string | Local path (e.g., `/config/www/test.jpg`) or URL (e.g., `https://...`) | Yes |
-| `resize_mode` | string | `stretch` (force 240x240) or `fit` (longest side 240) | No (default: `stretch`) |
+| `resize_mode` | string | `stretch` (force 240x240), `fit` (longest side 240) or `crop` (center crop to 240x240) | No (default: `stretch`) |
 
 **Example: Sending a local image**
 ```yaml
@@ -170,10 +170,10 @@ action: geek_magic.send_image
 data:
   entity_id: select.geek_magic_image
   image_path: >-
-    https://raw.githubusercontent.com/home-assistant/assets/refs/heads/master/t-shirt/v5%20-%20rainbow.png
-  resize_mode: fit
+    https://www.berlin.de/webcams/rathaus/webcam.jpg
+  resize_mode: crop
 ```
-![Custom HTML](images/render_ha_rainbow.jpg)
+![Custom HTML](images/render_webcam.jpg)
 
 ## Render API Requirement
 

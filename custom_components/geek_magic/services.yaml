@@ -44,7 +44,7 @@ send_image:
         text:
     resize_mode:
       name: Resize Mode
-      description: How to resize the image. "stretch" forces 240x240, "fit" resizes so the longest side is 240.
+      description: How to resize the image. "stretch" forces 240x240, "fit" resizes so the longest side is 240, "crop" crops the center to 240x240.
       default: stretch
       selector:
         select:
@@ -53,3 +53,5 @@ send_image:
               value: stretch
             - label: Fit to 240 (longest side)
               value: fit
+            - label: Crop to 240x240 (center)
+              value: crop

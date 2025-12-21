@@ -168,6 +168,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     
                     if resize_mode == "stretch":
                         img = img.resize((240, 240), Image.Resampling.LANCZOS)
+                    elif resize_mode == "crop":
+                        # Crop: fill 240x240 and take center
+                        width, height = img.size
+                        ratio = max(240 / width, 240 / height)
+                        new_width = int(width * ratio)
+                        new_height = int(height * ratio)
+                        img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+                        
+                        left = (new_width - 240) / 2
+                        top = (new_height - 240) / 2
+                        right = (new_width + 240) / 2
+                        bottom = (new_height + 240) / 2
+                        img = img.crop((left, top, right, bottom))
                     else:
                         # fit / contain: longest side 240
                         width, height = img.size
