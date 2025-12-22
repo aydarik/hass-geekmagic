@@ -22,6 +22,12 @@ This custom component enables integration with the **Geek Magic** smart display 
 
 ![Home stats](images/photo_image.jpg)
 
+## Alternatives
+
+This integration is intended to remain simple, based on the assumption that HTML already provides sufficient flexibility to render data in many different ways. With scripting and automation in Home Assistant itself, it’s also quite easy to build more complex logic when needed.
+
+If you’re looking for a more feature-rich solution, you may want to check out the [GeekMagic Display for Home Assistant](https://github.com/adrienbrault/geekmagic-hacs) integration by [@adrienbrault](https://github.com/adrienbrault).
+
 ## Installation
 
 ### HACS (Recommended)
