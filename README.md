@@ -12,19 +12,19 @@ This custom component enables integration with the **Geek Magic** smart display 
   - Select Images.
 - **Sensors**: Monitor free space on the device.
 
-![Controls](images/screenshot_controls.png)
+![Controls](/images/screenshot_controls.png)
 
 - **HTML Rendering & Upload**: Send text or raw HTML to the device, which is rendered to an image and uploaded automatically.
 
-![Home stats](images/photo_home_stats.jpg) ![Pomodoro](images/photo_pomodoro.jpg)
+![Home stats](/images/photo_home_stats.jpg) ![Pomodoro](/images/photo_pomodoro.jpg)
 
 - **Image Upload**: Send an image from a local path (e.g., camera snapshot) or URL to the device. The image will be automatically resized based on the selected mode.
 
-![Home stats](images/photo_image.jpg)
+![Home stats](/images/photo_image.jpg)
 
 ## Alternatives
 
-This integration is intended to remain simple, based on the assumption that HTML/CSS/JS already provide sufficient flexibility to render data in many different ways. With scripting and automation in Home Assistant itself, it’s also quite easy to build more complex logic when needed (see the [Pomodoro timer](examples/script.pomodoro.yaml) as an example).
+This integration is intended to remain simple, based on the assumption that HTML/CSS/JS already provide sufficient flexibility to render data in many different ways. With scripting and automation in Home Assistant itself, it’s also quite easy to build more complex logic when needed (see the [Pomodoro timer](/examples/script.pomodoro.yaml) as an example).
 
 If you’re looking for a more feature-rich solution, you may want to check out the [GeekMagic Display for Home Assistant](https://github.com/adrienbrault/geekmagic-hacs) integration by [@adrienbrault](https://github.com/adrienbrault).
 
@@ -91,7 +91,7 @@ data:
   subject: "Alert"
   text: "Washing Machine finished!"
 ```
-![Custom HTML](images/render_simple.jpg)
+![Custom HTML](/images/render_simple.jpg)
 
 **Example: Sending a complex notification**
 ```yaml
@@ -103,7 +103,7 @@ data:
     <p style="font-size: 84px; padding: 30px 0">🚪🚶</p>
 
 ```
-![Custom HTML](images/render_camera.jpg)
+![Custom HTML](/images/render_camera.jpg)
 
 **Example: Sending completely custom HTML**
 ```yaml
@@ -149,7 +149,7 @@ data:
     </body>
     </html>
 ```
-![Custom HTML](images/render_alert.jpg)
+![Custom HTML](/images/render_alert.jpg)
 
 ### Send Image
 
@@ -168,7 +168,7 @@ data:
   entity_id: select.geek_magic_image
   image_path: /config/www/tmp/snapshot_tapo_c200_c094.jpg
 ```
-![Custom HTML](images/render_image.jpg)
+![Custom HTML](/images/render_image.jpg)
 
 **Example: Sending an image from a URL**
 ```yaml
@@ -179,7 +179,7 @@ data:
     https://www.berlin.de/webcams/rathaus/webcam.jpg
   resize_mode: crop
 ```
-![Custom HTML](images/render_webcam.jpg)
+![Custom HTML](/images/render_webcam.jpg)
 
 ## Render API Requirement
 
@@ -210,15 +210,15 @@ You can use the [Text2Image](https://github.com/aydarik/text2image) service.
 docker run -d -p 8000:8000 ghcr.io/aydarik/text2image:latest
 ```
 
-> Then configure the **Render URL** in the integration settings to point to your local instance (e.g., `http://0.0.0.0:8000/render`).
+> Then configure the **Render URL** in the integration settings to point to your local instance (e.g., `http://127.0.0.1:8000/render`).
 
 ### API Specification
 
 The service should:
 - Accept a POST request.
 - Body: `{"html": "<your html>"}`.
-- Return a 240x240px JPEG image.
+- Return a 240x240px `image/jpeg` image.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](/LICENSE) file for details.
