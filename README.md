@@ -1,6 +1,6 @@
 # Geek Magic Home Assistant Integration
 
-[![HACS](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
+[![HACS Custom](https://img.shields.io/badge/HACS-Custom-blue)](https://hacs.xyz) [![License](https://img.shields.io/github/license/aydarik/hass-geekmagic)](/LICENSE) [![Release](https://img.shields.io/github/v/release/aydarik/hass-geekmagic)](/releases) [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Donate-orange?logo=buy-me-a-coffee)](https://www.buymeacoffee.com/aydarik)
 
 This custom component enables integration with the **Geek Magic** smart display device in Home Assistant.
 
@@ -24,7 +24,7 @@ This custom component enables integration with the **Geek Magic** smart display 
 
 ## Alternatives
 
-This integration is intended to remain simple, based on the assumption that HTML already provides sufficient flexibility to render data in many different ways. With scripting and automation in Home Assistant itself, it’s also quite easy to build more complex logic when needed.
+This integration is intended to remain simple, based on the assumption that HTML/CSS/JS already provide sufficient flexibility to render data in many different ways. With scripting and automation in Home Assistant itself, it’s also quite easy to build more complex logic when needed (see the [Pomodoro timer](examples/script.pomodoro.yaml) as an example).
 
 If you’re looking for a more feature-rich solution, you may want to check out the [GeekMagic Display for Home Assistant](https://github.com/adrienbrault/geekmagic-hacs) integration by [@adrienbrault](https://github.com/adrienbrault).
 
@@ -217,4 +217,8 @@ docker run -d -p 8000:8000 ghcr.io/aydarik/text2image:latest
 The service should:
 - Accept a POST request.
 - Body: `{"html": "<your html>"}`.
-- Return: `image/jpeg` binary data.
+- Return a 240x240px JPEG image.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
