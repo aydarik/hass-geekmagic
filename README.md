@@ -1,6 +1,6 @@
 # Geek Magic Home Assistant Integration
 
-[![HACS Custom](https://img.shields.io/badge/HACS-Custom-blue)](https://hacs.xyz) [![License](https://img.shields.io/github/license/aydarik/hass-geekmagic)](/LICENSE) [![Release](https://img.shields.io/github/v/release/aydarik/hass-geekmagic)](/releases) [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Donate-orange?logo=buy-me-a-coffee)](https://www.buymeacoffee.com/aydarik)
+[![HACS Custom](https://img.shields.io/badge/HACS-Custom-blue)](https://hacs.xyz) [![License](https://img.shields.io/github/license/aydarik/hass-geekmagic)](/LICENSE) [![Release](https://img.shields.io/github/v/release/aydarik/hass-geekmagic)](https://github.com/aydarik/hass-geekmagic/releases) [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Donate-orange?logo=buy-me-a-coffee)](https://www.buymeacoffee.com/aydarik)
 
 This custom component enables integration with the **Geek Magic** smart display device in Home Assistant.
 
