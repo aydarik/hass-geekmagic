@@ -135,6 +135,7 @@ data:
                 height: 100vh;
                 background: #121212;
             }
+
             .clock {
                 width: 240px;
                 height: 240px;
@@ -152,13 +153,7 @@ data:
         </style>
     </head>
     <body>
-    <div class="clock" id="clock"></div>
-    <script>
-        const now = new Date();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        document.getElementById('clock').textContent = `${hours}:${minutes}`;
-    </script>
+    <div class="clock">{{ as_timestamp(now()) | timestamp_custom('%H:%M') }}</div>
     </body>
     </html>
 ```
@@ -178,9 +173,7 @@ data:
     <html lang="en">
     <head>
     <title>BTC Price</title>
-    
     <meta name="viewport" content="width=240, height=240, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    
     <style>
       * {
         box-sizing: border-box;
@@ -231,9 +224,7 @@ data:
       }
     </style>
     </head>
-    
     <body>
-    
     <div id="header">
       <img
         id="logo"
@@ -244,9 +235,7 @@ data:
       />
       <div id="price">Loading…</div>
     </div>
-    
     <canvas id="chart" width="220" height="180"></canvas>
-    
     <script>
     // TIMESTAMP for cache update:
     // {{ (as_timestamp(now()) / 60) | round }}
@@ -317,7 +306,6 @@ data:
     
     loadData()
     </script>
-    
     </body>
     </html>
 ```
