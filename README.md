@@ -97,6 +97,7 @@ data:
 ```
 
 </details>
+
 ![Simple Notification](/images/render_simple.jpg)
 
 <details>
@@ -112,6 +113,7 @@ data:
 ```
 
 </details>
+
 ![Formatted Notification](/images/render_door.jpg)
 
 <details>
@@ -162,6 +164,7 @@ data:
 ```
 
 </details>
+
 ![Neon Clock](/images/render_clock.jpg)
 
 <details>
@@ -348,6 +351,7 @@ data:
 ```
 
 </details>
+
 ![Local Image](/images/render_image.jpg)
 
 <details>
@@ -363,6 +367,7 @@ data:
 ```
 
 </details>
+
 ![URL Image](/images/render_webcam.jpg)
 
 ## Render API Requirement
