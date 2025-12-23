@@ -20,7 +20,7 @@ This custom component enables integration with the **Geek Magic** smart display 
 
 - **Image Upload**: Send an image from a local path (e.g., camera snapshot) or URL to the device. The image will be automatically resized based on the selected mode.
 
-![Home stats](/images/photo_image.jpg)
+![Image upload](/images/photo_image.jpg)
 
 ## Alternatives
 
@@ -72,7 +72,7 @@ If you skipped configuring the Render URL during setup, you can do it later:
 
 Sends a message or custom HTML to the device. The content is rendered to a 240x240px JPEG and uploaded.
 
-**Parameters:**
+#### Parameters
 
 | Name | Type | Description | Required |
 | :--- | :--- | :--- | :--- |
@@ -83,7 +83,11 @@ Sends a message or custom HTML to the device. The content is rendered to a 240x2
 
 *\*Either `html` OR (`subject` and `text`) must be provided.*
 
-**Example: Sending a simple notification**
+#### Examples
+
+<details>
+<summary>Simple Notification</summary>
+
 ```yaml
 action: geek_magic.send_html
 data:
@@ -91,9 +95,13 @@ data:
   subject: "Alert"
   text: "Washing Machine finished!"
 ```
-![Custom HTML](/images/render_simple.jpg)
 
-**Example: Sending a complex notification**
+</details>
+![Simple Notification](/images/render_simple.jpg)
+
+<details>
+<summary>Formatted Notification</summary>
+
 ```yaml
 action: geek_magic.send_html
 data:
@@ -101,11 +109,14 @@ data:
   subject: Main door
   text: |
     <p style="font-size: 84px; padding: 30px 0">🚪🚶</p>
-
 ```
-![Custom HTML](/images/render_camera.jpg)
 
-**Example: Sending completely custom HTML**
+</details>
+![Formatted Notification](/images/render_door.jpg)
+
+<details>
+<summary>Neon Clock</summary>
+
 ```yaml
 action: geek_magic.send_html
 data:
@@ -149,11 +160,174 @@ data:
     </body>
     </html>
 ```
-![Custom HTML](/images/render_alert.jpg)
+
+</details>
+![Neon Clock](/images/render_clock.jpg)
+
+<details>
+<summary>BTC Price</summary>
+
+```yaml
+action: geek_magic.send_html
+data:
+  entity_id: select.geek_magic_image
+  html: >
+    <html lang="en">
+    <head>
+    <title>BTC Price</title>
+    
+    <meta name="viewport" content="width=240, height=240, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+    
+      html, body {
+        margin: 0;
+        width: 240px;
+        height: 240px;
+        overflow: hidden;
+        background: #0f1115;
+        color: #ffffff;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+    
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+    
+      #header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        height: 32px;
+        margin-bottom: 4px;
+      }
+    
+      #logo {
+        width: 24px;
+        height: 24px;
+        display: block;
+      }
+    
+      #price {
+        font-size: 32px;
+        font-weight: 600;
+        line-height: 1;
+        white-space: nowrap;
+      }
+    
+      canvas {
+        width: 220px;
+        height: 180px;
+        display: block;
+      }
+    </style>
+    </head>
+    
+    <body>
+    
+    <div id="header">
+      <img
+        id="logo"
+        src="https://assets.coingecko.com/coins/images/1/standard/bitcoin.png"
+        alt="Bitcoin"
+        loading="eager"
+        decoding="sync"
+      />
+      <div id="price">Loading…</div>
+    </div>
+    
+    <canvas id="chart" width="220" height="180"></canvas>
+    
+    <script>
+    // TIMESTAMP for cache update:
+    // {{ (as_timestamp(now()) / 60) | round }}
+    
+    const PRICE_URL =
+      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd";
+    
+    const CHART_URL =
+      "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1";
+    
+    async function loadData() {
+      try {
+        const [priceRes, chartRes] = await Promise.all([
+          fetch(PRICE_URL),
+          fetch(CHART_URL)
+        ]);
+    
+        if (!priceRes.ok || !chartRes.ok) throw new Error("API error");
+    
+        const priceData = await priceRes.json();
+        const chartData = await chartRes.json();
+    
+        const prices = chartData.prices.map(p => p[1]);
+        const current = priceData.bitcoin.usd;
+    
+        document.getElementById("price").textContent =
+          `$${current.toLocaleString("en-US")}`;
+    
+        const trendUp = prices[prices.length - 1] >= prices[0];
+        drawChart(prices, trendUp);
+    
+      } catch (e) {
+        document.getElementById("price").textContent = e.message;
+        drawChart([], true);
+      }
+    
+      window.renderReady = true;
+    }
+    
+    function drawChart(values, trendUp) {
+      const canvas = document.getElementById("chart");
+      const ctx = canvas.getContext("2d", { alpha: true });
+    
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+      if (values.length < 2) return;
+    
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const range = max - min || 1;
+    
+      ctx.strokeStyle = trendUp ? "#22c55e" : "#ef4444";
+      ctx.lineWidth = 2;
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+    
+      ctx.beginPath();
+    
+      values.forEach((v, i) => {
+        const x = (i / (values.length - 1)) * canvas.width;
+        const y = canvas.height - ((v - min) / range) * canvas.height;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+    
+      ctx.stroke();
+    }
+    
+    loadData()
+    </script>
+    
+    </body>
+    </html>
+```
+
+</details>
+
+![BTC Price](/images/render_btc.jpg)
 
 ### Send Image
 
 Sends a JPEG image from a local path or URL to the device. The image will be automatically resized based on the selected mode.
+
+#### Parameters
 
 | Field | Type | Description | Required |
 | --- | --- | --- | --- |
@@ -161,16 +335,24 @@ Sends a JPEG image from a local path or URL to the device. The image will be aut
 | `image_path` | string | Local path (e.g., `/config/www/test.jpg`) or URL (e.g., `https://...`) | Yes |
 | `resize_mode` | string | `stretch` (force 240x240), `fit` (longest side 240) or `crop` (center crop to 240x240) | No (default: `stretch`) |
 
-**Example: Sending a local image**
+#### Examples
+
+<details>
+<summary>Sending a local image</summary>
+
 ```yaml
 action: geek_magic.send_image
 data:
   entity_id: select.geek_magic_image
   image_path: /config/www/tmp/snapshot_tapo_c200_c094.jpg
 ```
-![Custom HTML](/images/render_image.jpg)
 
-**Example: Sending an image from a URL**
+</details>
+![Local Image](/images/render_image.jpg)
+
+<details>
+<summary>Sending an image from a URL</summary>
+
 ```yaml
 action: geek_magic.send_image
 data:
@@ -179,7 +361,9 @@ data:
     https://www.berlin.de/webcams/rathaus/webcam.jpg
   resize_mode: crop
 ```
-![Custom HTML](/images/render_webcam.jpg)
+
+</details>
+![URL Image](/images/render_webcam.jpg)
 
 ## Render API Requirement
 
