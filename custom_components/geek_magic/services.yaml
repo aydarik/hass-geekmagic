@@ -25,6 +25,12 @@ send_html:
       selector:
         text:
           multiline: true
+    cache:
+      name: Cache
+      description: Whether to use cached results for the render service.
+      default: true
+      selector:
+        boolean: {}
 send_image:
   name: Send Image
   description: Sends a JPEG image from a local path or URL to the Geek Magic device.

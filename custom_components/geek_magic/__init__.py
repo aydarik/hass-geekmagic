@@ -50,6 +50,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             subject = call.data.get("subject", "")
             text = call.data.get("text", "")
             html = call.data.get("html")
+            cache = call.data.get("cache", True)
 
             if not entity_ids:
                 return
@@ -95,7 +96,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 try:
                     async with session.post(
                         render_url, 
-                        json={"html": html_content}, 
+                        json={"html": html_content, "cache": cache}, 
                         headers={"Content-Type": "application/json"}
                     ) as resp:
                         if resp.status != 200:

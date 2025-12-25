@@ -1,0 +1,57 @@
+# Changelog
+
+## [1.3.2] - 2025-12-25
+
+### Added
+- Added `cache` flag (enabled by default) to `send_html` service to control rendering service cache.
+
+### Changed
+- Updated API specification for the rendering service to include the `cache` flag.
+
+## [1.3.1] - 2025-12-21
+
+### Added
+- Added `crop` resize mode for the `send_image` service.
+
+## [1.3.0] - 2025-12-20
+
+### Added
+- Added `send_image` service for direct JPEG image upload from local path or URL.
+
+### Changed
+- Added `pillow` as a dependency for image processing.
+
+## [1.2.2] - 2025-12-19
+
+### Fixed
+- Gracefully handle 404 responses from the device API.
+
+## [1.2.1] - 2025-12-18
+
+### Fixed
+- Allow full URL/IP address input in configuration.
+
+## [1.2.0] - 2025-12-17
+
+### Added
+- Added predefined renderer URL to work out of the box.
+
+## [1.1.2] - 2025-12-15
+
+### Added
+- Added "Small Image" (Weather) select entity.
+
+## [1.1.1] - 2025-12-15
+
+### Changed
+- Updated service descriptions for the rendering service.
+
+## [1.1.0] - 2025-12-15
+
+### Added
+- Added `send_html` service with HTML rendering support.
+
+## [1.0.0] - 2025-12-14
+
+### Added
+- Initial release with basic sensors, brightness control, and image selection.

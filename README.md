@@ -80,6 +80,7 @@ Sends a message or custom HTML to the device. The content is rendered to a 240x2
 | `subject` | string | Title/Subject text to display (inserted into template) | No* |
 | `text` | string | Body text to display (inserted into template) | No* |
 | `html` | string | Raw HTML to render. Overrides `subject` and `text`. | No* |
+| `cache` | boolean | Whether to use cached results for the render service. | No (default: `true`) |
 
 *\*Either `html` OR (`subject` and `text`) must be provided.*
 
@@ -391,9 +392,9 @@ docker run -d -p 8000:8000 ghcr.io/aydarik/text2image:latest
 
 ### API Specification
 
-The service should:
+If you prefer, you can also implement your own service. It should follow these requirements:
 - Accept a POST request.
-- Body: `{"html": "<your html>"}`.
+- Body: `{"html": "<your html>", "cache": true}`.
 - Return a 240x240px `image/jpeg` image.
 
 ## License
