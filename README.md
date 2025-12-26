@@ -47,13 +47,13 @@ or manually:
 
 ### Manual Installation
 
-1.  Copy the `custom_components/geek_magic` directory to your Home Assistant `config/custom_components/` directory.
+1.  Download and unpack the latest [release](https://github.com/aydarik/hass-geekmagic/releases) zip file to your Home Assistant `config/custom_components/` directory.
 2.  Restart Home Assistant.
-3.  Go to **Settings > Devices & Services > Add Integration**.
-4.  Search for **Geek Magic** and select it.
-5.  Enter the **IP Address** of your Geek Magic device.
 
 ## Configuration
+
+1.  Go to **Settings > Devices & Services > Add Integration**.
+2.  Search for **Geek Magic**.
 
 ### Basic Setup
 During the initial setup, you need to provide the device's IP address. You can also optionally configure the **Render URL** and **HTML Template** at this stage.

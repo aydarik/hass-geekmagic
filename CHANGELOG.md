@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.3.3] - 2025-12-26
+
+### Added
+- Added zip releases.
+
 ## [1.3.2] - 2025-12-25
 
 ### Added
