@@ -19,12 +19,11 @@ _LOGGER = logging.getLogger(__name__)
 class GeekMagicDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Geek Magic data."""
 
-    config_entry: ConfigEntry
-
     def __init__(
         self,
         hass: HomeAssistant,
         client: GeekMagicApiClient,
+        entry: ConfigEntry,
         update_interval_seconds: int = 30,
     ) -> None:
         """Initialize."""
@@ -35,6 +34,7 @@ class GeekMagicDataUpdateCoordinator(DataUpdateCoordinator):
             update_interval=timedelta(seconds=update_interval_seconds),
         )
         self.client = client
+        self.config_entry = entry
 
     def update_interval_seconds(self, interval: int) -> None:
         """Update the coordinator's update interval."""

@@ -2,12 +2,12 @@ send_html:
   name: Send HTML
   description: Renders HTML to an image and displays it on the Geek Magic device.
   fields:
-    entity_id:
-      name: Entity
-      description: Name(s) of the Geek Magic entities.
-      required: true
+    device_id:
+      name: Device
+      description: The Geek Magic device to send to (if not specified, sends to all devices).
+      required: false
       selector:
-        entity:
+        device:
           integration: geek_magic
     subject:
       name: Subject
@@ -35,12 +35,12 @@ send_image:
   name: Send Image
   description: Sends a JPEG image from a local path or URL to the Geek Magic device.
   fields:
-    entity_id:
-      name: Entity
-      description: Name(s) of the Geek Magic entities.
-      required: true
+    device_id:
+      name: Device
+      description: The Geek Magic device to send to (if not specified, sends to all devices).
+      required: false
       selector:
-        entity:
+        device:
           integration: geek_magic
     image_path:
       name: Image Path or URL
