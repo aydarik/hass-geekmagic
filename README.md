@@ -47,7 +47,7 @@ or manually:
 
 ### Manual Installation
 
-1.  Download and unpack the latest [release](https://github.com/aydarik/hass-geekmagic/releases) zip file to your Home Assistant `config/custom_components/` directory.
+1.  Download and unpack the latest [release](https://github.com/aydarik/hass-geekmagic/releases) zip file to your Home Assistant `config/custom_components/geek_magic` directory.
 2.  Restart Home Assistant.
 
 ## Configuration

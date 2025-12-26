@@ -13,12 +13,12 @@ jobs:
 
       - name: Zip
         run: |
-          cd custom_components
-          zip geek_magic.zip -r geek_magic
+          cd custom_components/geek_magic
+          zip -r geek_magic.zip .
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          files: custom_components/geek_magic.zip
+          files: custom_components/geek_magic/geek_magic.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
