@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0] - 2025-12-28
+
+### Added
+- Support for multiple device selection in `send_html` and `send_image` services.
+
+### Changed
+- `entity_id` field is deprecated in favor of `device_id`. It's still supported for backward compatibility but will be removed in the future.
+
 ## [1.3.3] - 2025-12-26
 
 ### Added
