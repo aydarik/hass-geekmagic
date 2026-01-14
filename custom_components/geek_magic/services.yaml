@@ -10,13 +10,7 @@ send_html:
         device:
           integration: geek_magic
           multiple: true
-    entity_id:
-      name: Entity
-      description: "⚠️ DEPRECATED: Use device_id instead. Will be removed in a future release."
-      required: false
-      selector:
-        entity:
-          integration: geek_magic
+
     subject:
       name: Subject
       description: The subject/title to display.
@@ -51,13 +45,7 @@ send_image:
         device:
           integration: geek_magic
           multiple: true
-    entity_id:
-      name: Entity
-      description: "⚠️ DEPRECATED: Use device_id instead. Will be removed in a future release."
-      required: false
-      selector:
-        entity:
-          integration: geek_magic
+
     image_path:
       name: Image Path or URL
       description: The local path (e.g. /config/www/image.jpg) or URL (https://...) to the JPEG image.

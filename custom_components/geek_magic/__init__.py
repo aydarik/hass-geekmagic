@@ -4,7 +4,7 @@ from __future__ import annotations
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import entity_registry, device_registry as dr
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 
@@ -47,28 +47,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if not hass.services.has_service(DOMAIN, "send_html"):
         async def handle_send_html(call):
             device_ids = call.data.get("device_id")
-            entity_ids = call.data.get("entity_id")
             subject = call.data.get("subject", "")
             text = call.data.get("text", "")
             html = call.data.get("html")
             cache = call.data.get("cache", True)
-
-            if entity_ids:
-                _LOGGER.warning("The 'entity_id' parameter is deprecated, please use 'device_id' instead")
-                if isinstance(entity_ids, str):
-                    entity_ids = [entity_ids]
-
-                ent_reg = entity_registry.async_get(hass)
-                if device_ids is None:
-                    device_ids = []
-                elif isinstance(device_ids, str):
-                    device_ids = [device_ids]
-
-                for entity_id in entity_ids:
-                    entry = ent_reg.async_get(entity_id)
-                    if entry and entry.device_id:
-                        if entry.device_id not in device_ids:
-                            device_ids.append(entry.device_id)
 
             # Collect coordinators based on device_ids or all configured devices
             coordinators = []
@@ -141,26 +123,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         async def handle_send_image(call):
             device_ids = call.data.get("device_id")
-            entity_ids = call.data.get("entity_id")
             image_path = call.data.get("image_path")
             resize_mode = call.data.get("resize_mode", "stretch")
-
-            if entity_ids:
-                _LOGGER.warning("The 'entity_id' parameter is deprecated, please use 'device_id' instead")
-                if isinstance(entity_ids, str):
-                    entity_ids = [entity_ids]
-
-                ent_reg = entity_registry.async_get(hass)
-                if device_ids is None:
-                    device_ids = []
-                elif isinstance(device_ids, str):
-                    device_ids = [device_ids]
-
-                for entity_id in entity_ids:
-                    entry = ent_reg.async_get(entity_id)
-                    if entry and entry.device_id:
-                        if entry.device_id not in device_ids:
-                            device_ids.append(entry.device_id)
 
             if not image_path:
                 _LOGGER.error("No image path provided")
