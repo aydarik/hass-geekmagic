@@ -94,7 +94,7 @@ Sends a message or custom HTML to the device. The content is rendered to a 240x2
 action: geek_magic.send_html
 data:
   subject: "Alert"
-  text: "🌡️ The current temperature is too high: {{ states('sensor.average_temperature') | round(1) }}°C"
+  text: "🌡️ The current temperature is too high: {{ states('sensor.your_temperature_sensor') | round(1) }}°C"
 ```
 
 </details>
@@ -110,8 +110,8 @@ data:
   subject: >-
     ⏳ {{ ((as_timestamp(state_attr('calendar.your_calendar_name', 'start_time')) - as_timestamp(now())) / 60) | round }} minutes
   text: >-
-    <p style="padding-top:15px; font-size:32px">🕒 {{ as_timestamp(state_attr('calendar.your_calendar_name', 'start_time')) | timestamp_custom('%H:%M') }}<p>
-    <p style="padding-top:25px; font-size:28px; text-align:center">{{ state_attr('calendar.your_calendar_name', 'message') }}<p>
+    <p style="padding-top:15px; font-size:28px">🕒 {{ as_timestamp(state_attr('calendar.your_calendar_name', 'start_time')) | timestamp_custom('%H:%M') }} - {{ as_timestamp(state_attr('calendar.your_calendar_name', 'end_time')) | timestamp_custom('%H:%M') }}<p>
+    <p style="padding-top:15px; font-size:32px; text-align:center">{{ state_attr('calendar.your_calendar_name', 'message') }}<p>
 ```
 
 </details>
@@ -125,10 +125,8 @@ data:
 action: geek_magic.send_html
 data:
   html: |
-    <html lang="en">
+    <html>
     <head>
-    <meta charset="UTF-8"/>
-    <title>Climate</title>
     <style>
       body {
         margin: 0;
@@ -154,10 +152,10 @@ data:
     <body>
     <div class="widget">
       <div class="row">
-        <span style="font-size: 40px; padding-right: 2px">🌡️</span>{{ states('sensor.temperature') | round }}<span style="font-size: 48px;">°C</span>
+        <span style="font-size: 40px; padding-right: 2px">🌡️</span>{{ states('sensor.your_temperature_sensor') | round }}<span style="font-size: 48px;">°C</span>
       </div>
       <div class="row">
-        <span style="font-size: 40px; padding-right: 2px;">💧</span>{{ states('sensor.humidity') | round }}<span style="font-size: 48px;">%</span>
+        <span style="font-size: 40px; padding-right: 2px;">💧</span>{{ states('sensor.your_humidity_sensor') | round }}<span style="font-size: 48px;">%</span>
       </div>
     </div>
     </body>
@@ -175,10 +173,8 @@ data:
 action: geek_magic.send_html
 data:
   html: |
-    <html lang="en">
+    <html>
     <head>
-    <meta charset="UTF-8"/>
-    <title>Bus</title>
     <style>
       body {
         margin: 0;
@@ -221,29 +217,30 @@ data:
     </head>
     <body>
     <div class="card">
-      <div class="label" style="font-size: 32px;"><img src="https://abfahrtsmonitor.vbb.de/images/transport/bus_blank.svg" width="24" height="24" alt="Bus Logo"> {{ state_attr('sensor.bus', 'name') }}</div>
+      <div class="label" style="font-size: 32px;"><img src="https://abfahrtsmonitor.vbb.de/images/transport/bus_blank.svg" width="24" height="24" alt="Bus Logo"> {{ state_attr('sensor.your_bus_sensor', 'name') }}</div>
       <div id="main" class="minutes">-</div>
-      <div id="status" style="font-size: 40px;">on-time</div>
+      <div id="status" style="font-size: 40px;"/>
     </div>
 
     <script>
-      const minsToActual = {{ states('sensor.bus_departure') | int }};
-      const diffSchedActual = {{ states('sensor.bus_delay') | int }};
+      const minsToActual = {{ states('sensor.your_bus_departure_sensor') }};
+      const diffSchedActual = {{ '\'unavailable\'' if states('sensor.your_bus_delay_sensor') == 'unavailable' else states('sensor.your_bus_delay_sensor') }};
 
       const mainEl = document.getElementById("main");
       const statusEl = document.getElementById("status");
       mainEl.textContent = minsToActual;
 
-      if (diffSchedActual != 0) {
-        if (diffSchedActual > 0) {
-          statusEl.textContent = `+${diffSchedActual} min`;
-          statusEl.classList.add("late");
-        } else {
-          statusEl.textContent = `${diffSchedActual} min`;
-          statusEl.classList.add("early");
-        }
-      } else {
+      if (diffSchedActual == 0) {
+        statusEl.textContent = 'on-time';
         statusEl.classList.add("on-time");
+      } else if (diffSchedActual > 0) {
+        statusEl.textContent = `+${diffSchedActual} min`;
+        statusEl.classList.add("late");
+      } else if (diffSchedActual < 0) {
+        statusEl.textContent = `${diffSchedActual} min`;
+        statusEl.classList.add("early");
+      } else {
+        statusEl.textContent = 'scheduled';
       }
 
       if (minsToActual <= 2) {
@@ -268,53 +265,47 @@ action: geek_magic.send_html
 data:
   cache: false
   html: |
-    <html lang="en">
+    <html>
     <head>
-    <title>BTC Price</title>
-    <meta name="viewport" content="width=240, height=240, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <style>
-      * {
-        box-sizing: border-box;
-      }
-    
       html, body {
         margin: 0;
         width: 240px;
         height: 240px;
         overflow: hidden;
-        background: #0f1115;
-        color: #ffffff;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #000000;
+        color: #e6e6e6;
+        font-family: Roboto, serif;
       }
-    
+
       body {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
       }
-    
+
       #header {
         display: flex;
         align-items: center;
         gap: 8px;
         height: 32px;
-        margin-bottom: 4px;
+        margin-bottom: 15px;
       }
-    
+
       #logo {
         width: 24px;
         height: 24px;
         display: block;
       }
-    
+
       #price {
         font-size: 32px;
         font-weight: 600;
         line-height: 1;
         white-space: nowrap;
       }
-    
+
       canvas {
         width: 220px;
         height: 180px;
@@ -337,68 +328,68 @@ data:
     <script>
     const PRICE_URL =
       "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd";
-    
+
     const CHART_URL =
       "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1";
-    
+
     async function loadData() {
       try {
         const [priceRes, chartRes] = await Promise.all([
           fetch(PRICE_URL),
           fetch(CHART_URL)
         ]);
-    
+
         if (!priceRes.ok || !chartRes.ok) throw new Error("API error");
-    
+
         const priceData = await priceRes.json();
         const chartData = await chartRes.json();
-    
+
         const prices = chartData.prices.map(p => p[1]);
         const current = priceData.bitcoin.usd;
-    
+
         document.getElementById("price").textContent =
           `$${current.toLocaleString("en-US")}`;
-    
+
         const trendUp = prices[prices.length - 1] >= prices[0];
         drawChart(prices, trendUp);
-    
+
       } catch (e) {
         document.getElementById("price").textContent = e.message;
         drawChart([], true);
       }
-    
+
       window.renderReady = true;
     }
-    
+
     function drawChart(values, trendUp) {
       const canvas = document.getElementById("chart");
       const ctx = canvas.getContext("2d", { alpha: true });
-    
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
       if (values.length < 2) return;
-    
+
       const min = Math.min(...values);
       const max = Math.max(...values);
       const range = max - min || 1;
-    
+
       ctx.strokeStyle = trendUp ? "#22c55e" : "#ef4444";
       ctx.lineWidth = 2;
       ctx.lineJoin = "round";
       ctx.lineCap = "round";
-    
+
       ctx.beginPath();
-    
+
       values.forEach((v, i) => {
         const x = (i / (values.length - 1)) * canvas.width;
         const y = canvas.height - ((v - min) / range) * canvas.height;
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       });
-    
+
       ctx.stroke();
     }
-    
+
     loadData()
     </script>
     </body>
@@ -407,7 +398,7 @@ data:
 
 </details>
 
-![BTC Price Down](/images/render_btc_down.jpg) ![BTC Price Up](/images/render_btc_up.jpg)
+![BTC Price](/images/render_btc.jpg)
 
 ### Send Image
 
