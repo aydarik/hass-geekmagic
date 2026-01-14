@@ -94,7 +94,7 @@ Sends a message or custom HTML to the device. The content is rendered to a 240x2
 action: geek_magic.send_html
 data:
   subject: "Alert"
-  text: "Washing Machine finished!"
+  text: "🌡️ The current temperature is too high: {{ states('sensor.average_temperature') | round(1) }}°C"
 ```
 
 </details>
@@ -107,17 +107,19 @@ data:
 ```yaml
 action: geek_magic.send_html
 data:
-  subject: Main door
-  text: |
-    <p style="font-size: 84px; padding: 30px 0">🚪🚶</p>
+  subject: >-
+    ⏳ {{ ((as_timestamp(state_attr('calendar.your_calendar_name', 'start_time')) - as_timestamp(now())) / 60) | round }} minutes
+  text: >-
+    <p style="padding-top:15px; font-size:32px">🕒 {{ as_timestamp(state_attr('calendar.your_calendar_name', 'start_time')) | timestamp_custom('%H:%M') }}<p>
+    <p style="padding-top:25px; font-size:28px; text-align:center">{{ state_attr('calendar.your_calendar_name', 'message') }}<p>
 ```
 
 </details>
 
-![Formatted Notification](/images/render_door.jpg)
+![Formatted Notification](/images/render_calendar.jpg)
 
 <details>
-<summary>Neon Clock</summary>
+<summary>Climate</summary>
 
 ```yaml
 action: geek_magic.send_html
@@ -125,41 +127,138 @@ data:
   html: |
     <html lang="en">
     <head>
-        <title>Neon Clock</title>
-        <style>
-            body {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                background: #121212;
-            }
+    <meta charset="UTF-8"/>
+    <title>Climate</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Roboto, serif;
+      }
 
-            .clock {
-                width: 240px;
-                height: 240px;
-                border-radius: 50%;
-                background: #1e1e1e;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                font-family: Arial, sans-serif;
-                font-size: 48px;
-                font-weight: bold;
-                color: #00ffae;
-                box-shadow: 0 0 15px rgba(0, 255, 174, 0.5);
-            }
-        </style>
+      .widget {
+        width: 240px;
+        height: 240px;
+        background: #000000;
+        color: #e6e6e6;
+        overflow: hidden;
+      }
+
+      .row {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: stretch;
+        font-size: 112px;
+      }
+    </style>
     </head>
     <body>
-    <div class="clock">{{ as_timestamp(now()) | timestamp_custom('%H:%M') }}</div>
+    <div class="widget">
+      <div class="row">
+        <span style="font-size: 40px; padding-right: 2px">🌡️</span>{{ states('sensor.temperature') | round }}<span style="font-size: 48px;">°C</span>
+      </div>
+      <div class="row">
+        <span style="font-size: 40px; padding-right: 2px;">💧</span>{{ states('sensor.humidity') | round }}<span style="font-size: 48px;">%</span>
+      </div>
+    </div>
     </body>
     </html>
 ```
 
 </details>
 
-![Neon Clock](/images/render_clock.jpg)
+![Climate](/images/render_climate.jpg)
+
+<details>
+<summary>Bus Departure</summary>
+
+```yaml
+action: geek_magic.send_html
+data:
+  html: |
+    <html lang="en">
+    <head>
+    <meta charset="UTF-8"/>
+    <title>Bus</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Roboto, serif;
+      }
+
+      .card {
+        width: 240px;
+        height: 240px;
+        background: #000000;
+        color: #e6e6e6;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .minutes {
+        font-size: 168px;
+        margin: -20px;
+      }
+
+      .label {
+        color: #feba01;
+      }
+
+      .on-time {
+        color: #4ade80;
+      }
+
+      .late {
+        color: #ff391f;
+      }
+
+      .early {
+        color: #60a5fa;
+      }
+    </style>
+    </head>
+    <body>
+    <div class="card">
+      <div class="label" style="font-size: 32px;"><img src="https://abfahrtsmonitor.vbb.de/images/transport/bus_blank.svg" width="24" height="24" alt="Bus Logo"> {{ state_attr('sensor.bus', 'name') }}</div>
+      <div id="main" class="minutes">-</div>
+      <div id="status" style="font-size: 40px;">on-time</div>
+    </div>
+
+    <script>
+      const minsToActual = {{ states('sensor.bus_departure') | int }};
+      const diffSchedActual = {{ states('sensor.bus_delay') | int }};
+
+      const mainEl = document.getElementById("main");
+      const statusEl = document.getElementById("status");
+      mainEl.textContent = minsToActual;
+
+      if (diffSchedActual != 0) {
+        if (diffSchedActual > 0) {
+          statusEl.textContent = `+${diffSchedActual} min`;
+          statusEl.classList.add("late");
+        } else {
+          statusEl.textContent = `${diffSchedActual} min`;
+          statusEl.classList.add("early");
+        }
+      } else {
+        statusEl.classList.add("on-time");
+      }
+
+      if (minsToActual <= 2) {
+        mainEl.classList.add("late");
+      } else if (minsToActual <= 5) {
+        mainEl.classList.add("label");
+      }
+    </script>
+    </body>
+    </html>
+```
+
+</details>
+
+![Bus Departure](/images/render_bus.jpg)
 
 <details>
 <summary>BTC Price</summary>
@@ -167,7 +266,8 @@ data:
 ```yaml
 action: geek_magic.send_html
 data:
-  html: >
+  cache: false
+  html: |
     <html lang="en">
     <head>
     <title>BTC Price</title>
@@ -235,9 +335,6 @@ data:
     </div>
     <canvas id="chart" width="220" height="180"></canvas>
     <script>
-    // TIMESTAMP for cache update:
-    // {{ (as_timestamp(now()) / 60) | round }}
-    
     const PRICE_URL =
       "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd";
     
@@ -310,7 +407,7 @@ data:
 
 </details>
 
-![BTC Price](/images/render_btc.jpg)
+![BTC Price Down](/images/render_btc_down.jpg) ![BTC Price Up](/images/render_btc_up.jpg)
 
 ### Send Image
 
@@ -332,7 +429,7 @@ Sends a JPEG image from a local path or URL to the device. The image will be aut
 ```yaml
 action: geek_magic.send_image
 data:
-  image_path: /config/www/tmp/snapshot_tapo_c200_c094.jpg
+  image_path: /config/www/camera/snapshot.jpg
 ```
 
 </details>
