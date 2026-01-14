@@ -54,13 +54,20 @@ class GeekMagicApiClient:
         
         def _fetch():
             import requests
-            resp = requests.get(
-                f"{self._url}/filelist", 
-                params={"dir": "/image"},
-                timeout=10
-            )
-            resp.raise_for_status()
-            return resp.text
+            for attempt in range(2):
+                try:
+                    resp = requests.get(
+                        f"{self._url}/filelist", 
+                        params={"dir": "/image"},
+                        timeout=10
+                    )
+                    resp.raise_for_status()
+                    return resp.text
+                except Exception as err:
+                    if attempt == 1:
+                        raise err
+                    _LOGGER.debug("Retrying /filelist (dir=/image) after error: %s", err)
+            return ""
 
         try:
              html = await loop.run_in_executor(None, _fetch)
@@ -81,13 +88,20 @@ class GeekMagicApiClient:
         
         def _fetch():
             import requests
-            resp = requests.get(
-                f"{self._url}/filelist", 
-                params={"dir": "/gif"},
-                timeout=10
-            )
-            resp.raise_for_status()
-            return resp.text
+            for attempt in range(2):
+                try:
+                    resp = requests.get(
+                        f"{self._url}/filelist", 
+                        params={"dir": "/gif"},
+                        timeout=10
+                    )
+                    resp.raise_for_status()
+                    return resp.text
+                except Exception as err:
+                    if attempt == 1:
+                        raise err
+                    _LOGGER.debug("Retrying /filelist (dir=/gif) after error: %s", err)
+            return ""
 
         try:
              html = await loop.run_in_executor(None, _fetch)
@@ -131,15 +145,22 @@ class GeekMagicApiClient:
             # files argument for requests handles multipart
             files = {"file": (filename, file_data, "image/jpeg")}
             
-            resp = requests.post(
-                f"{self._url}/doUpload",
-                params={"dir": "/image/"},
-                files=files,
-                timeout=20
-            )
-            if resp.status_code != 200:
-                 _LOGGER.error("Upload failed: %s %s", resp.status_code, resp.text)
-            resp.raise_for_status()
+            for attempt in range(2):
+                try:
+                    resp = requests.post(
+                        f"{self._url}/doUpload",
+                        params={"dir": "/image/"},
+                        files=files,
+                        timeout=20
+                    )
+                    if resp.status_code != 200:
+                         _LOGGER.error("Upload failed: %s %s", resp.status_code, resp.text)
+                    resp.raise_for_status()
+                    return
+                except Exception as err:
+                    if attempt == 1:
+                        raise err
+                    _LOGGER.debug("Retrying /doUpload after error: %s", err)
 
         await loop.run_in_executor(None, _upload)
 
@@ -167,27 +188,36 @@ class GeekMagicApiClient:
 
         request_kwargs["headers"] = headers
 
-        try:
-            async with async_timeout.timeout(10):
-                response = await self._session.request(**request_kwargs)
-                _LOGGER.debug("Requesting %s with params %s", f"{self._url}/{url}", params)
-                
-                if response.status == 404:
-                    _LOGGER.info("404 received from %s, using last known value if available", f"{self._url}/{url}")
-                    return None
+        for attempt in range(2):
+            try:
+                async with async_timeout.timeout(10):
+                    response = await self._session.request(**request_kwargs)
+                    _LOGGER.debug("Requesting %s with params %s (attempt %s)", f"{self._url}/{url}", params, attempt + 1)
                     
-                response.raise_for_status()
-                
-                if is_json:
-                    json_data = await response.json(content_type=None)
-                    return json_data
-                
-                text_data = await response.text()
-                return text_data
+                    if response.status == 404:
+                        _LOGGER.info("404 received from %s, using last known value if available", f"{self._url}/{url}")
+                        return None
+                        
+                    response.raise_for_status()
+                    
+                    if is_json:
+                        json_data = await response.json(content_type=None)
+                        return json_data
+                    
+                    text_data = await response.text()
+                    return text_data
 
-        except asyncio.TimeoutError as exception:
-            raise Exception(f"Timeout error fetching information from {self._url} - {exception}") from exception
-        except (aiohttp.ClientError, socket.gaierror) as exception:
-            raise Exception(f"Error fetching information from {self._url} - {exception}") from exception
-        except Exception as exception:  # pylint: disable=broad-except
-            raise Exception(f"Something really wrong happened! - {exception}") from exception
+            except asyncio.TimeoutError as exception:
+                if attempt == 1:
+                    raise Exception(f"Timeout error fetching information from {self._url} - {exception}") from exception
+                _LOGGER.debug("Retrying %s after timeout", url)
+            except (aiohttp.ClientError, socket.gaierror) as exception:
+                if attempt == 1:
+                    raise Exception(f"Error fetching information from {self._url} - {exception}") from exception
+                _LOGGER.debug("Retrying %s after error: %s", url, exception)
+            except Exception as exception:  # pylint: disable=broad-except
+                if attempt == 1:
+                    raise Exception(f"Something really wrong happened! - {exception}") from exception
+                _LOGGER.debug("Retrying %s after unexpected error: %s", url, exception)
+        
+        return None
