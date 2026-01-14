@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.5.0] - 2026-01-14
+
+### Added
+- Added retry mechanism (1 retry) for failing API requests to improve reliability.
+- Added icons for services and entities.
+
+### Changed
+- Removed deprecated `entity_id` logic from services. Use `device_id` instead.
+
 ## [1.4.0] - 2025-12-28
 
 ### Added
