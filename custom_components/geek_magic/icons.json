@@ -1,0 +1,10 @@
+{
+  "services": {
+    "send_html": {
+      "service": "mdi:text-box"
+    },
+    "send_image": {
+      "service": "mdi:image"
+    }
+  }
+}

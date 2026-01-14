@@ -51,6 +51,7 @@ class GeekMagicBrightnessNumber(GeekMagicNumber):
     _attr_native_min_value = -10
     _attr_native_max_value = 100
     _attr_native_step = 1
+    _attr_icon = "mdi:brightness-percent"
 
     @property
     def unique_id(self) -> str:

@@ -42,6 +42,7 @@ class GeekMagicThemeSelect(CoordinatorEntity, SelectEntity):
     _attr_name = "Theme"
     _attr_unique_id = "theme"
     _attr_options = list(THEMES.keys())
+    _attr_icon = "mdi:image-multiple"
 
     def __init__(self, coordinator: GeekMagicDataUpdateCoordinator, entry: ConfigEntry) -> None:
         """Initialize the entity."""
@@ -84,6 +85,7 @@ class GeekMagicImageSelect(CoordinatorEntity, SelectEntity):
 
     _attr_name = "Image"
     _attr_unique_id = "image_select"
+    _attr_icon = "mdi:image-size-select-actual"
 
     def __init__(self, coordinator: GeekMagicDataUpdateCoordinator, entry: ConfigEntry) -> None:
         """Initialize the entity."""
@@ -119,6 +121,7 @@ class GeekMagicSmallImageSelect(CoordinatorEntity, SelectEntity):
 
     _attr_name = "Small Image"
     _attr_unique_id = "small_image_select"
+    _attr_icon = "mdi:image-size-select-large"
 
     def __init__(self, coordinator: GeekMagicDataUpdateCoordinator, entry: ConfigEntry) -> None:
         """Initialize the entity."""
