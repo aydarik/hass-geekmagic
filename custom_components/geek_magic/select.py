@@ -20,28 +20,38 @@ THEMES = {
     "Simple Weather Clock": 7,
 }
 
+THEMES_CUSTOM = {
+    "Clock": 1,
+    "Message": 2,
+    "Image": 3,
+}
+
+
 async def async_setup_entry(
-    hass: HomeAssistant,
-    entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+        hass: HomeAssistant,
+        entry: ConfigEntry,
+        async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Geek Magic select."""
     coordinator: GeekMagicDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
 
-    async_add_entities(
-        [
-            GeekMagicThemeSelect(coordinator, entry),
-            GeekMagicImageSelect(coordinator, entry),
-            GeekMagicSmallImageSelect(coordinator, entry),
-        ]
-    )
+    entities = [
+        GeekMagicThemeSelect(coordinator, entry),
+        GeekMagicImageSelect(coordinator, entry),
+    ]
+
+    model = coordinator.data["m"]
+    if isinstance(model, str) and model.startswith("SmallTV"):
+        entities.append(GeekMagicSmallImageSelect(coordinator, entry))
+
+    async_add_entities(entities)
+
 
 class GeekMagicThemeSelect(CoordinatorEntity, SelectEntity):
     """Theme select."""
 
     _attr_name = "Theme"
     _attr_unique_id = "theme"
-    _attr_options = list(THEMES.keys())
     _attr_icon = "mdi:image-multiple"
 
     def __init__(self, coordinator: GeekMagicDataUpdateCoordinator, entry: ConfigEntry) -> None:
@@ -54,6 +64,13 @@ class GeekMagicThemeSelect(CoordinatorEntity, SelectEntity):
             "name": entry.title,
             "manufacturer": "Geek Magic",
         }
+
+    @property
+    def options(self) -> list[str]:
+        model = self.coordinator.data.get("m")
+        if isinstance(model, str) and model.startswith("SmallTV"):
+            return list(THEMES.keys())
+        return list(THEMES_CUSTOM.keys())
 
     @property
     def unique_id(self) -> str:
@@ -69,16 +86,29 @@ class GeekMagicThemeSelect(CoordinatorEntity, SelectEntity):
         except (ValueError, TypeError):
             pass
 
-        for name, theme_id in THEMES.items():
+        model = self.coordinator.data.get("m")
+        if isinstance(model, str) and model.startswith("SmallTV"):
+            for name, theme_id in THEMES.items():
+                if theme_id == current_id:
+                    return name
+
+        for name, theme_id in THEMES_CUSTOM.items():
             if theme_id == current_id:
                 return name
+
         return None
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
-        theme_id = THEMES[option]
+        model = self.coordinator.data.get("m")
+        if isinstance(model, str) and model.startswith("SmallTV"):
+            theme_id = THEMES[option]
+        else:
+            theme_id = THEMES_CUSTOM[option]
+
         await self.coordinator.client.async_set_theme(theme_id)
         await self.coordinator.async_request_refresh()
+
 
 class GeekMagicImageSelect(CoordinatorEntity, SelectEntity):
     """Image select with local state tracking."""

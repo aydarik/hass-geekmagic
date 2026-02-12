@@ -1,14 +1,13 @@
 """The Geek Magic integration."""
 from __future__ import annotations
 
+import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-
-import logging
 from .api import GeekMagicApiClient
 from .const import (
     DOMAIN,
@@ -26,15 +25,16 @@ from .coordinator import GeekMagicDataUpdateCoordinator
 
 PLATFORMS: list[Platform] = [Platform.NUMBER, Platform.SELECT, Platform.SENSOR]
 
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Geek Magic from a config entry."""
     hass.data.setdefault(DOMAIN, {})
 
     url = f"http://{entry.data[CONF_IP_ADDRESS]}"
-    
+
     session = async_get_clientsession(hass)
     client = GeekMagicApiClient(session=session, url=url)
-    
+
     # Get update interval from options or use default
     update_interval = entry.options.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
     coordinator = GeekMagicDataUpdateCoordinator(hass, client, entry, update_interval)
@@ -43,7 +43,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
-    # Register service in `async_setup_entry` but check if it's already registered.
+    # Register services in `async_setup_entry` but check if they are already registered.
     if not hass.services.has_service(DOMAIN, "send_html"):
         async def handle_send_html(call):
             device_ids = call.data.get("device_id")
@@ -90,8 +90,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
                 if not html:
                     if not subject and not text:
-                         _LOGGER.error("No html, subject, or text provided")
-                         continue
+                        _LOGGER.error("No html, subject, or text provided")
+                        continue
                     # Use template
                     html_content = html_template.replace("subject", str(subject)).replace("text", str(text))
                 else:
@@ -100,9 +100,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 # Render HTML
                 try:
                     async with session.post(
-                        render_url, 
-                        json={"html": html_content, "cache": cache}, 
-                        headers={"Content-Type": "application/json"}
+                            render_url,
+                            json={"html": html_content, "cache": cache},
+                            headers={"Content-Type": "application/json"}
                     ) as resp:
                         if resp.status != 200:
                             _LOGGER.error("Error rendering HTML for device: %s", await resp.text())
@@ -121,6 +121,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 except Exception as e:
                     _LOGGER.error("Error uploading image to device: %s", e)
 
+        hass.services.async_register(DOMAIN, "send_html", handle_send_html)
+
+    if not hass.services.has_service(DOMAIN, "send_image"):
         async def handle_send_image(call):
             device_ids = call.data.get("device_id")
             image_path = call.data.get("image_path")
@@ -148,11 +151,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     actual_path = image_path
                     if image_path.startswith("/config/"):
                         actual_path = hass.config.path(image_path[8:])
-                    
+
                     def _read_file():
                         with open(actual_path, "rb") as f:
                             return f.read()
-                    
+
                     image_data = await hass.async_add_executor_job(_read_file)
                 except Exception as e:
                     _LOGGER.error("Error reading local image file: %s", e)
@@ -169,7 +172,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     img = Image.open(io.BytesIO(image_data))
                     if img.mode != "RGB":
                         img = img.convert("RGB")
-                    
+
                     if resize_mode == "stretch":
                         img = img.resize((240, 240), Image.Resampling.LANCZOS)
                     elif resize_mode == "crop":
@@ -179,7 +182,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                         new_width = int(width * ratio)
                         new_height = int(height * ratio)
                         img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
-                        
+
                         left = (new_width - 240) / 2
                         top = (new_height - 240) / 2
                         right = (new_width + 240) / 2
@@ -238,12 +241,56 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 except Exception as e:
                     _LOGGER.error("Error uploading image for device: %s", e)
 
-        hass.services.async_register(DOMAIN, "send_html", handle_send_html)
         hass.services.async_register(DOMAIN, "send_image", handle_send_image)
+
+    if not hass.services.has_service(DOMAIN, "send_message"):
+        async def handle_send_message(call):
+            device_ids = call.data.get("device_id")
+            custom_message = call.data.get("custom_message", "")
+
+            # Collect coordinators based on device_ids or all configured devices
+            coordinators = []
+            if device_ids:
+                if isinstance(device_ids, str):
+                    device_ids = [device_ids]
+
+                dev_reg = dr.async_get(hass)
+                for device_id in device_ids:
+                    device_entry = dev_reg.async_get(device_id)
+                    if not device_entry or not device_entry.config_entries:
+                        continue
+
+                    config_entry_id = next(iter(device_entry.config_entries))
+                    if config_entry_id in hass.data[DOMAIN]:
+                        coordinators.append(hass.data[DOMAIN][config_entry_id])
+            else:
+                # Target all devices
+                for coordinator in hass.data[DOMAIN].values():
+                    coordinators.append(coordinator)
+
+            if not coordinators:
+                _LOGGER.error("No Geek Magic devices found to send message to")
+                return
+
+            for coordinator in coordinators:
+                client = coordinator.client
+
+                if not custom_message:
+                    _LOGGER.error("No html, subject, or text provided")
+                    continue
+
+                # Send message
+                try:
+                    await client.async_set_message(custom_message)
+                except Exception as e:
+                    _LOGGER.error("Error sending custom message to device: %s", e)
+
+        hass.services.async_register(DOMAIN, "send_message", handle_send_message)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
+
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""

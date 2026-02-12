@@ -5,11 +5,9 @@ import logging
 from typing import Any
 
 import voluptuous as vol
-
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
-
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import GeekMagicApiClient
@@ -23,7 +21,6 @@ from .const import (
     DEFAULT_HTML_TEMPLATE,
 )
 
-
 LOGGER = logging.getLogger(__name__)
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
@@ -34,13 +31,14 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
     }
 )
 
+
 class GeekMagicConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Geek Magic."""
 
     VERSION = 1
 
     async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
+            self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle the initial step."""
         errors: dict[str, str] = {}
@@ -51,7 +49,7 @@ class GeekMagicConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 ip_address = ip_address[7:]
             elif ip_address.startswith("https://"):
                 ip_address = ip_address[8:]
-            
+
             user_input[CONF_IP_ADDRESS] = ip_address
 
             try:
@@ -82,7 +80,7 @@ class GeekMagicConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(
-        config_entry: config_entries.ConfigEntry,
+            config_entry: config_entries.ConfigEntry,
     ) -> config_entries.OptionsFlow:
         """Create the options flow."""
         return GeekMagicOptionsFlowHandler(config_entry)
@@ -96,7 +94,7 @@ class GeekMagicOptionsFlowHandler(config_entries.OptionsFlow):
         self._config_entry = config_entry
 
     async def async_step_init(
-        self, user_input: dict[str, Any] | None = None
+            self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Manage the options."""
         if user_input is not None:

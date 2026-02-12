@@ -5,6 +5,9 @@
 
 This custom component enables integration with the **Geek Magic** smart display device in Home Assistant.
 
+> [!TIP]
+> Also supports custom firmwares, which are designed with backward compatibility (e.g. https://github.com/aydarik/geekmagic-tv-esp8266).
+
 ## Features
 
 - **Controls**: 
@@ -400,7 +403,7 @@ data:
 
 ![BTC Price](/images/render_btc.jpg)
 
-### Send Image
+### Send image
 
 Sends a JPEG image from a local path or URL to the device. The image will be automatically resized based on the selected mode.
 
@@ -441,6 +444,30 @@ data:
 </details>
 
 ![URL Image](/images/render_webcam.jpg)
+
+### Send custom message
+
+Sends a custom message to the device. Supported **ONLY on custom firmware**.
+
+#### Parameters
+
+| Field | Type | Description | Required |
+| --- | --- | --- | --- |
+| `device_id` | string | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified) | No |
+| `custom_message` | string | Custom message to show on the Geek Magic device. | Yes |
+
+#### Examples
+
+<details>
+<summary>Sending a custom message</summary>
+
+```yaml
+action: geek_magic.send_message
+data:
+  custom_message: hello\nworld!
+```
+
+</details>
 
 ## Render API Requirement
 

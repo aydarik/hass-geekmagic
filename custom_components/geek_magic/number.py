@@ -10,10 +10,11 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN, CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL
 from .coordinator import GeekMagicDataUpdateCoordinator
 
+
 async def async_setup_entry(
-    hass: HomeAssistant,
-    entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+        hass: HomeAssistant,
+        entry: ConfigEntry,
+        async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Geek Magic numbers."""
     coordinator: GeekMagicDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
@@ -48,7 +49,7 @@ class GeekMagicBrightnessNumber(GeekMagicNumber):
 
     _attr_name = "Brightness"
     _attr_unique_id = "brightness"
-    _attr_native_min_value = -10
+    _attr_native_min_value = 0
     _attr_native_max_value = 100
     _attr_native_step = 1
     _attr_icon = "mdi:brightness-percent"
@@ -97,14 +98,14 @@ class GeekMagicUpdateIntervalNumber(GeekMagicNumber):
     async def async_set_native_value(self, value: float) -> None:
         """Set the value."""
         interval_seconds = int(value)
-        
+
         # Update the config entry options
         new_options = dict(self._entry.options)
         new_options[CONF_UPDATE_INTERVAL] = interval_seconds
         self.hass.config_entries.async_update_entry(self._entry, options=new_options)
-        
+
         # Update the coordinator's interval
         self.coordinator.update_interval_seconds(interval_seconds)
-        
+
         # Write the new state
         self.async_write_ha_state()
