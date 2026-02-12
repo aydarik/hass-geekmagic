@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.6.0] - 2026-02-12
+
+### Added
+- Added support for custom firmwares (e.g. https://github.com/aydarik/geekmagic-tv-esp8266).
+- Added a service for sending native custom messages without image rendering (supported **ONLY on custom firmware**).
+
 ## [1.5.1] - 2026-02-06
 
 The release does not change anything, but it is a requirement to add the integration to the HACS default repository.

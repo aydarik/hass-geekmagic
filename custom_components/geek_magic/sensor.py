@@ -11,10 +11,11 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN
 from .coordinator import GeekMagicDataUpdateCoordinator
 
+
 async def async_setup_entry(
-    hass: HomeAssistant,
-    entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+        hass: HomeAssistant,
+        entry: ConfigEntry,
+        async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Geek Magic sensors."""
     coordinator: GeekMagicDataUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
@@ -24,6 +25,7 @@ async def async_setup_entry(
             GeekMagicFreeSpaceSensor(coordinator, entry),
         ]
     )
+
 
 class GeekMagicFreeSpaceSensor(CoordinatorEntity, SensorEntity):
     """Free space sensor."""
@@ -55,9 +57,9 @@ class GeekMagicFreeSpaceSensor(CoordinatorEntity, SensorEntity):
         """Return the current value."""
         bytes_val = self.coordinator.data.get("free")
         if bytes_val is not None:
-             try:
-                 # Convert bytes to KB
-                 return round(int(bytes_val) / 1024, 2)
-             except (ValueError, TypeError):
-                 pass
+            try:
+                # Convert bytes to KB
+                return round(int(bytes_val) / 1024, 2)
+            except (ValueError, TypeError):
+                pass
         return None

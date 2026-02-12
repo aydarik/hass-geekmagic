@@ -10,7 +10,6 @@ send_html:
         device:
           integration: geek_magic
           multiple: true
-
     subject:
       name: Subject
       description: The subject/title to display.
@@ -32,9 +31,10 @@ send_html:
       description: Whether to use cached results for the render service.
       default: true
       selector:
-        boolean: {}
+        boolean: { }
+
 send_image:
-  name: Send Image
+  name: Send image
   description: Sends a JPEG image from a local path or URL to the Geek Magic device.
   fields:
     device_id:
@@ -45,7 +45,6 @@ send_image:
         device:
           integration: geek_magic
           multiple: true
-
     image_path:
       name: Image Path or URL
       description: The local path (e.g. /config/www/image.jpg) or URL (https://...) to the JPEG image.
@@ -65,3 +64,22 @@ send_image:
               value: fit
             - label: Crop to 240x240 (center)
               value: crop
+
+send_message:
+  name: Send custom message
+  description: Sends a custom message to the Geek Magic device. Supported ONLY on custom firmware.
+  fields:
+    device_id:
+      name: Devices
+      description: The Geek Magic devices to send to (broadcast to all devices if not specified).
+      required: false
+      selector:
+        device:
+          integration: geek_magic
+          multiple: true
+    custom_message:
+      name: Message
+      description: Custom message to show on the Geek Magic device.
+      required: true
+      selector:
+        text:

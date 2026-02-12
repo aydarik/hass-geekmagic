@@ -1,8 +1,8 @@
 """DataUpdateCoordinator for Geek Magic."""
 from __future__ import annotations
 
-from datetime import timedelta
 import logging
+from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -16,15 +16,16 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
+
 class GeekMagicDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Geek Magic data."""
 
     def __init__(
-        self,
-        hass: HomeAssistant,
-        client: GeekMagicApiClient,
-        entry: ConfigEntry,
-        update_interval_seconds: int = 30,
+            self,
+            hass: HomeAssistant,
+            client: GeekMagicApiClient,
+            entry: ConfigEntry,
+            update_interval_seconds: int = 30,
     ) -> None:
         """Initialize."""
         super().__init__(
@@ -47,7 +48,12 @@ class GeekMagicDataUpdateCoordinator(DataUpdateCoordinator):
             data = await self.client.async_get_data()
             data["free"] = await self.client.async_get_space()
             data["images"] = await self.client.async_get_images()
-            data["small_images"] = await self.client.async_get_small_images()
+
+            model = data["m"]
+            if isinstance(model, str) and model.startswith("SmallTV"):
+                data["small_images"] = await self.client.async_get_small_images()
+
             return data
+
         except Exception as exception:
             raise UpdateFailed(exception) from exception

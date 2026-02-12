@@ -5,6 +5,9 @@
     },
     "send_image": {
       "service": "mdi:image"
+    },
+    "send_message": {
+      "service": "mdi:text"
     }
   }
 }
