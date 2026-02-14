@@ -459,7 +459,7 @@ Sends a custom message to the device. Supported **ONLY on custom firmware**.
 | Field | Type | Description | Required |
 | --- | --- | --- | --- |
 | `device_id` | string | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified) | No |
-| `message_style` | string | CStyle of the message. Currently supported: empty (default), "center", "big_num" | No |
+| `message_style` | string | Style of the message. Currently supported: `default`, `center`, `big_num` | No |
 | `message_subject` | string | Message subject, shown as a title. | No |
 | `custom_message` | string | Custom message to show on the Geek Magic device. | Yes |
 
@@ -488,7 +488,7 @@ Start a countdown timer to a specified date and time. Supported **ONLY on custom
 | --- | --- | --- | --- |
 | `device_id` | string | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified) | No |
 | `countdown_subject` | string | Countdown subject, shown as a title. | No |
-| `countdown_datetime` | string | Date and time in the format 'YYYY-MM-DD HH:mm:ss' or ISO 8601. | Yes |
+| `countdown_datetime` | string | Date and time in the format `YYYY-MM-DD HH:mm:ss` or ISO 8601. | Yes |
 
 #### Examples
 
