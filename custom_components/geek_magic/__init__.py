@@ -246,7 +246,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if not hass.services.has_service(DOMAIN, "send_message"):
         async def handle_send_message(call):
             device_ids = call.data.get("device_id")
-            custom_message = call.data.get("custom_message", "")
+            custom_message = call.data.get("custom_message")
+            message_subject = call.data.get("message_subject", "")
+            message_style = call.data.get("message_style", "")
+
+            if not custom_message:
+                _LOGGER.error("No message provided")
+                return
 
             # Collect coordinators based on device_ids or all configured devices
             coordinators = []
@@ -273,15 +279,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 return
 
             for coordinator in coordinators:
-                client = coordinator.client
-
-                if not custom_message:
-                    _LOGGER.error("No html, subject, or text provided")
-                    continue
-
-                # Send message
                 try:
-                    await client.async_set_message(custom_message)
+                    await coordinator.client.async_set_message(custom_message, message_subject, message_style)
                 except Exception as e:
                     _LOGGER.error("Error sending custom message to device: %s", e)
 

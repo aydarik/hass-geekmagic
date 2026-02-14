@@ -137,10 +137,10 @@ class GeekMagicApiClient:
         # /set?img=/gif/<filename>
         await self._api_wrapper("get", "set", params={"gif": f"/gif/{filename}"}, is_json=False)
 
-    async def async_set_message(self, custom_message: str) -> None:
+    async def async_set_message(self, custom_message: str, subject: str, style: str) -> None:
         """Set custom message."""
-        # /set?msg=<custom_message>
-        await self._api_wrapper("get", "set", params={"msg": custom_message.replace("\n", "%0A")}, is_json=False)
+        # /set?msg=<custom_message>&sbj=<subject>&style=<style>
+        await self._api_wrapper("get", "set", params={"msg": custom_message.replace("\n", "%0A"), "sbj": subject, "style": style}, is_json=False)
 
     async def async_upload_file(self, file_data: bytes, filename: str) -> None:
         """Upload a file to the device."""

@@ -454,6 +454,8 @@ Sends a custom message to the device. Supported **ONLY on custom firmware**.
 | Field | Type | Description | Required |
 | --- | --- | --- | --- |
 | `device_id` | string | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified) | No |
+| `message_style` | string | CStyle of the message. Currently supported: empty (default), "center", "big_num" | No |
+| `message_subject` | string | Message title, shown as a title. | No |
 | `custom_message` | string | Custom message to show on the Geek Magic device. | Yes |
 
 #### Examples
@@ -464,6 +466,8 @@ Sends a custom message to the device. Supported **ONLY on custom firmware**.
 ```yaml
 action: geek_magic.send_message
 data:
+  message_style: center
+  message_subject: test
   custom_message: hello\nworld!
 ```
 

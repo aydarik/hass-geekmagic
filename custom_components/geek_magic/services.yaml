@@ -77,6 +77,25 @@ send_message:
         device:
           integration: geek_magic
           multiple: true
+    message_style:
+      name: Style
+      description: Style of the message.
+      required: false
+      selector:
+        select:
+          options:
+            - value: ""
+              label: Default
+            - value: "center"
+              label: Center
+            - value: "big_num"
+              label: Big Number
+    message_subject:
+      name: Subject
+      description: Message title, shown as a title.
+      required: false
+      selector:
+        text:
     custom_message:
       name: Message
       description: Custom message to show on the Geek Magic device.
