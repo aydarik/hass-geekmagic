@@ -11,10 +11,15 @@ This custom component enables integration with the **Geek Magic** smart display 
 ## Features
 
 - **Controls**: 
-  - Change Themes.
-  - Adjust Brightness.
-  - Select Images.
+  - Change themes.
+  - Adjust brightness.
+  - Select images.
 - **Sensors**: Monitor free space on the device.
+
+
+- **On custom firmwares**:
+    - Send custom messages.
+    - Start countdown timers.
 
 ![Controls](/images/screenshot_controls.png)
 
@@ -455,7 +460,7 @@ Sends a custom message to the device. Supported **ONLY on custom firmware**.
 | --- | --- | --- | --- |
 | `device_id` | string | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified) | No |
 | `message_style` | string | CStyle of the message. Currently supported: empty (default), "center", "big_num" | No |
-| `message_subject` | string | Message title, shown as a title. | No |
+| `message_subject` | string | Message subject, shown as a title. | No |
 | `custom_message` | string | Custom message to show on the Geek Magic device. | Yes |
 
 #### Examples
@@ -469,6 +474,32 @@ data:
   message_style: center
   message_subject: test
   custom_message: hello\nworld!
+```
+
+</details>
+
+### Start countdown timer
+
+Start a countdown timer to a specified date and time. Supported **ONLY on custom firmware**.
+
+#### Parameters
+
+| Field | Type | Description | Required |
+| --- | --- | --- | --- |
+| `device_id` | string | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified) | No |
+| `countdown_subject` | string | Countdown subject, shown as a title. | No |
+| `countdown_datetime` | string | Date and time in the format 'YYYY-MM-DD HH:mm:ss' or ISO 8601. | Yes |
+
+#### Examples
+
+<details>
+<summary>Starting a countdown timer</summary>
+
+```yaml
+action: geek_magic.set_countdown
+data:
+  countdown_subject: test
+  countdown_datetime: "2026-02-16 09:30:00"
 ```
 
 </details>

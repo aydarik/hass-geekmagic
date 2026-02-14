@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.6.1] - 2026-02-14
+
+### Added
+- Added a service for starting a countdown timer on supported custom firmwares.
+
 ## [1.6.0] - 2026-02-12
 
 ### Added

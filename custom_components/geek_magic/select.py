@@ -24,6 +24,7 @@ THEMES_CUSTOM = {
     "Clock": 1,
     "Message": 2,
     "Image": 3,
+    "Countdown": 4,
 }
 
 

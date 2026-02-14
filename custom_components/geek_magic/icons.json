@@ -8,6 +8,9 @@
     },
     "send_message": {
       "service": "mdi:text"
+    },
+    "set_countdown": {
+      "service": "mdi:counter"
     }
   }
 }

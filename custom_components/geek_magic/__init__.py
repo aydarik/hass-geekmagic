@@ -286,6 +286,48 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         hass.services.async_register(DOMAIN, "send_message", handle_send_message)
 
+        if not hass.services.has_service(DOMAIN, "set_countdown"):
+            async def handle_set_countdown(call):
+                device_ids = call.data.get("device_id")
+                countdown_datetime = call.data.get("countdown_datetime")
+                countdown_subject = call.data.get("countdown_subject", "")
+
+                if not countdown_datetime:
+                    _LOGGER.error("No date-time provided for countdown")
+                    return
+
+                # Collect coordinators based on device_ids or all configured devices
+                coordinators = []
+                if device_ids:
+                    if isinstance(device_ids, str):
+                        device_ids = [device_ids]
+
+                    dev_reg = dr.async_get(hass)
+                    for device_id in device_ids:
+                        device_entry = dev_reg.async_get(device_id)
+                        if not device_entry or not device_entry.config_entries:
+                            continue
+
+                        config_entry_id = next(iter(device_entry.config_entries))
+                        if config_entry_id in hass.data[DOMAIN]:
+                            coordinators.append(hass.data[DOMAIN][config_entry_id])
+                else:
+                    # Target all devices
+                    for coordinator in hass.data[DOMAIN].values():
+                        coordinators.append(coordinator)
+
+                if not coordinators:
+                    _LOGGER.error("No Geek Magic devices found to set countdown timer")
+                    return
+
+                for coordinator in coordinators:
+                    try:
+                        await coordinator.client.async_set_countdown(countdown_datetime, countdown_subject)
+                    except Exception as e:
+                        _LOGGER.error("Error starting countdown timer on device: %s", e)
+
+        hass.services.async_register(DOMAIN, "set_countdown", handle_set_countdown)
+
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True

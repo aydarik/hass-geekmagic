@@ -142,6 +142,11 @@ class GeekMagicApiClient:
         # /set?msg=<custom_message>&sbj=<subject>&style=<style>
         await self._api_wrapper("get", "set", params={"msg": custom_message.replace("\n", "%0A"), "sbj": subject, "style": style}, is_json=False)
 
+    async def async_set_countdown(self, datetime: str, subject: str) -> None:
+        """Set countdown."""
+        # /set?cnt=<datetime>&sbj=<subject>
+        await self._api_wrapper("get", "set", params={"cnt": datetime, "sbj": subject}, is_json=False)
+
     async def async_upload_file(self, file_data: bytes, filename: str) -> None:
         """Upload a file to the device."""
         # /doUpload?dir=/image/
