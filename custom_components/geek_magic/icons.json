@@ -13,7 +13,7 @@
       "service": "mdi:counter"
     },
     "set_note": {
-      "service": "mdi:note-alert"
+      "service": "mdi:note"
     }
   }
 }

@@ -126,9 +126,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     _LOGGER.error("Error connecting to render service: %s", e)
                     continue
 
-                # Upload image
                 try:
                     filename = "geekmagic.jpg"
+                    # Upload image
                     await client.async_upload_file(image_data, filename)
                     # Set image
                     await client.async_set_image(filename, timeout, not is_aydarik)

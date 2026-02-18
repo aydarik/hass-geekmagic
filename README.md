@@ -6,7 +6,8 @@
 This custom component enables integration with the **Geek Magic** smart display device in Home Assistant.
 
 > [!TIP]
-> Also supports custom firmwares, which are designed with backward compatibility (e.g. https://github.com/aydarik/geekmagic-tv-esp8266).
+> Also supports custom firmwares, which are designed with backward compatibility.
+> Currently focused: [aydarik/geekmagic-tv-esp8266](https://github.com/aydarik/geekmagic-tv-esp8266).
 
 ## Features
 

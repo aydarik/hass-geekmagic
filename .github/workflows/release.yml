@@ -11,6 +11,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Extract version
+        id: get_version
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "TAG=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "Building version: $TAG_NAME"
+
       - name: Zip
         run: |
           cd custom_components/geek_magic
@@ -20,5 +27,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: custom_components/geek_magic/geek_magic.zip
+          tag_name: ${{ steps.get_version.outputs.TAG }}
+          name: v${{ steps.get_version.outputs.TAG }}
+          draft: true
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
