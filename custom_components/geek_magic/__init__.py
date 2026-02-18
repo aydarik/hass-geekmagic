@@ -328,6 +328,47 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         hass.services.async_register(DOMAIN, "set_countdown", handle_set_countdown)
 
+        if not hass.services.has_service(DOMAIN, "set_note"):
+            async def handle_set_note(call):
+                device_ids = call.data.get("device_id")
+                note = call.data.get("note", "")
+
+                if not note:
+                    _LOGGER.error("No note provided")
+                    return
+
+                # Collect coordinators based on device_ids or all configured devices
+                coordinators = []
+                if device_ids:
+                    if isinstance(device_ids, str):
+                        device_ids = [device_ids]
+
+                    dev_reg = dr.async_get(hass)
+                    for device_id in device_ids:
+                        device_entry = dev_reg.async_get(device_id)
+                        if not device_entry or not device_entry.config_entries:
+                            continue
+
+                        config_entry_id = next(iter(device_entry.config_entries))
+                        if config_entry_id in hass.data[DOMAIN]:
+                            coordinators.append(hass.data[DOMAIN][config_entry_id])
+                else:
+                    # Target all devices
+                    for coordinator in hass.data[DOMAIN].values():
+                        coordinators.append(coordinator)
+
+                if not coordinators:
+                    _LOGGER.error("No Geek Magic devices found to set note")
+                    return
+
+                for coordinator in coordinators:
+                    try:
+                        await coordinator.client.async_set_note(note)
+                    except Exception as e:
+                        _LOGGER.error("Error setting note on device: %s", e)
+
+        hass.services.async_register(DOMAIN, "set_note", handle_set_note)
+
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True

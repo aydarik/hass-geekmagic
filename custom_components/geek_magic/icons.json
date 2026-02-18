@@ -11,6 +11,9 @@
     },
     "set_countdown": {
       "service": "mdi:counter"
+    },
+    "set_note": {
+      "service": "mdi:note-alert"
     }
   }
 }

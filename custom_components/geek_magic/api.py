@@ -3,6 +3,7 @@ import asyncio
 import logging
 import re
 import socket
+from urllib.parse import urlencode
 
 import aiohttp
 import async_timeout
@@ -140,12 +141,17 @@ class GeekMagicApiClient:
     async def async_set_message(self, custom_message: str, subject: str, style: str) -> None:
         """Set custom message."""
         # /set?msg=<custom_message>&sbj=<subject>&style=<style>
-        await self._api_wrapper("get", "set", params={"msg": custom_message.replace("\n", "%0A"), "sbj": subject, "style": style}, is_json=False)
+        await self._api_wrapper("get", "set", params={"msg": custom_message, "sbj": subject, "style": style}, is_json=False)
 
     async def async_set_countdown(self, datetime: str, subject: str) -> None:
         """Set countdown."""
         # /set?cnt=<datetime>&sbj=<subject>
         await self._api_wrapper("get", "set", params={"cnt": datetime, "sbj": subject}, is_json=False)
+
+    async def async_set_note(self, note: str) -> None:
+        """Set sticky note."""
+        # /set?note=<note>
+        await self._api_wrapper("get", "set", params={"note": note}, is_json=False)
 
     async def async_upload_file(self, file_data: bytes, filename: str) -> None:
         """Upload a file to the device."""
@@ -178,7 +184,8 @@ class GeekMagicApiClient:
 
         await loop.run_in_executor(None, _upload)
 
-    async def _api_wrapper(self, method: str, url: str, data: dict | aiohttp.FormData | None = None, params: dict | None = None, is_json: bool = True) -> dict | str | None:
+    async def _api_wrapper(self, method: str, url: str, data: dict | aiohttp.FormData | None = None,
+                           params: dict | None = None, is_json: bool = True) -> dict | str | None:
         """Get information from the API."""
         if params is None:
             params = {}
@@ -187,7 +194,7 @@ class GeekMagicApiClient:
         request_kwargs = {
             "method": method,
             "url": f"{self._url}/{url}",
-            "params": params,
+            "params": urlencode(params),
         }
 
         if data is not None:

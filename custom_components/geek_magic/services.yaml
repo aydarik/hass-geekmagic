@@ -67,7 +67,7 @@ send_image:
 
 send_message:
   name: Send custom message
-  description: Sends a custom message to the Geek Magic device. ⚠️ Supported ONLY on custom firmware.
+  description: Sends a custom message to the Geek Magic device.
   fields:
     device_id:
       name: Devices
@@ -105,7 +105,7 @@ send_message:
 
 set_countdown:
   name: Start countdown timer
-  description: Start a countdown timer to a specified date and time. ⚠️ Supported ONLY on custom firmware.
+  description: Start a countdown timer to a specified date and time.
   fields:
     device_id:
       name: Devices
@@ -127,3 +127,22 @@ set_countdown:
       required: true
       selector:
         datetime:
+
+set_note:
+  name: Set sticky note
+  description: Sets a sticky note on the Clock screen.
+  fields:
+    device_id:
+      name: Devices
+      description: The Geek Magic devices to send to (broadcast to all devices if not specified).
+      required: false
+      selector:
+        device:
+          integration: geek_magic
+          multiple: true
+    note:
+      name: Note
+      description: Note to show on the Clock screen.
+      required: true
+      selector:
+        text:
