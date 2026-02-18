@@ -489,11 +489,28 @@ data:
   custom_message: |
     Hello world!
     Привет, мир!
+  timeout: 60
 ```
 
 </details>
 
 ![Custom message](/images/photo_custom_message.jpg)
+
+<details>
+<summary>Sending a value with gauge</summary>
+
+```yaml
+action: geek_magic.send_message
+data:
+  message_style: big_num
+  message_subject: Living room
+  custom_message: "{{ states('sensor.esp_1_temperature') ~ '/30 ℃' }}"
+  timeout: 60
+```
+
+</details>
+
+![Gauge](/images/photo_custom_gauge.jpg)
 
 ### Start countdown timer
 
@@ -515,8 +532,9 @@ Start a countdown timer to a specified date and time. Supported **ONLY on custom
 ```yaml
 action: geek_magic.set_countdown
 data:
-  countdown_subject: Next call
-  countdown_datetime: "2026-02-16 09:30:00"
+  countdown_subject: "{{ state_attr('calendar.your_calendar_sensor', 'message') }}"
+  countdown_datetime: "{{ state_attr('calendar.your_calendar_sensor', 'start_time') }}"
+  timeout: 60
 ```
 
 </details>
@@ -537,12 +555,24 @@ Sets a sticky note on the Clock screen. Supported **ONLY on custom firmware**.
 #### Examples
 
 <details>
-<summary>Setting sticky note</summary>
+<summary>Setting sticky note (rotates within a minute)</summary>
 
 ```yaml
 action: geek_magic.set_note
 data:
-  note: "-1, snow"
+  note: >-
+    {% set weather_state = states('weather.home') | replace('-night', '') |
+    replace('-', ' ') | replace('partlycloudy', 'partly cloudy') %}
+    {% set weather_temp = state_attr('weather.home', 'temperature') | float |
+    round(0) %}
+
+    {% set home_temp = states('sensor.temperature') | round(1) %}
+    {% set home_humid = states('sensor.humidity') | round(0) %}
+
+    {{ ('+' if (weather_temp > 0)) ~ weather_temp ~ '℃, ' ~ weather_state }}
+    {{ home_temp ~ '℃ | ' ~ home_humid ~ '%' }}
+    {{ 'CO₂ ' ~ states('sensor.carbon_dioxide') | round ~ ' ppm' }}
+  timeout: 3600 # auto-expires if not updated
 ```
 
 </details>
