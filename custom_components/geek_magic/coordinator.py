@@ -50,7 +50,7 @@ class GeekMagicDataUpdateCoordinator(DataUpdateCoordinator):
             data["images"] = await self.client.async_get_images()
 
             model = data["m"]
-            if isinstance(model, str) and model.startswith("SmallTV"):
+            if isinstance(model, str) and model != "aydarik":
                 data["small_images"] = await self.client.async_get_small_images()
 
             return data

@@ -20,7 +20,7 @@ THEMES = {
     "Simple Weather Clock": 7,
 }
 
-THEMES_CUSTOM = {
+THEMES_AYDARIK = {
     "Clock": 1,
     "Message": 2,
     "Image": 3,
@@ -42,7 +42,7 @@ async def async_setup_entry(
     ]
 
     model = coordinator.data["m"]
-    if isinstance(model, str) and model.startswith("SmallTV"):
+    if isinstance(model, str) and model != "aydarik":
         entities.append(GeekMagicSmallImageSelect(coordinator, entry))
 
     async_add_entities(entities)
@@ -69,9 +69,9 @@ class GeekMagicThemeSelect(CoordinatorEntity, SelectEntity):
     @property
     def options(self) -> list[str]:
         model = self.coordinator.data.get("m")
-        if isinstance(model, str) and model.startswith("SmallTV"):
-            return list(THEMES.keys())
-        return list(THEMES_CUSTOM.keys())
+        if isinstance(model, str) and model == "aydarik":
+            return list(THEMES_AYDARIK.keys())
+        return list(THEMES.keys())
 
     @property
     def unique_id(self) -> str:
@@ -88,12 +88,12 @@ class GeekMagicThemeSelect(CoordinatorEntity, SelectEntity):
             pass
 
         model = self.coordinator.data.get("m")
-        if isinstance(model, str) and model.startswith("SmallTV"):
-            for name, theme_id in THEMES.items():
+        if isinstance(model, str) and model == "aydarik":
+            for name, theme_id in THEMES_AYDARIK.items():
                 if theme_id == current_id:
                     return name
 
-        for name, theme_id in THEMES_CUSTOM.items():
+        for name, theme_id in THEMES.items():
             if theme_id == current_id:
                 return name
 
@@ -102,10 +102,10 @@ class GeekMagicThemeSelect(CoordinatorEntity, SelectEntity):
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
         model = self.coordinator.data.get("m")
-        if isinstance(model, str) and model.startswith("SmallTV"):
-            theme_id = THEMES[option]
+        if isinstance(model, str) and model == "aydarik":
+            theme_id = THEMES_AYDARIK[option]
         else:
-            theme_id = THEMES_CUSTOM[option]
+            theme_id = THEMES[option]
 
         await self.coordinator.client.async_set_theme(theme_id)
         await self.coordinator.async_request_refresh()

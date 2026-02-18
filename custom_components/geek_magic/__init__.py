@@ -26,6 +26,35 @@ from .coordinator import GeekMagicDataUpdateCoordinator
 PLATFORMS: list[Platform] = [Platform.NUMBER, Platform.SELECT, Platform.SENSOR]
 
 
+async def _async_get_coordinators_by_device_id(
+    hass: HomeAssistant,
+    device_ids: str | list[str] | None
+) -> list[GeekMagicDataUpdateCoordinator]:
+    """Get coordinators based on device_ids or all configured devices."""
+    coordinators: list[GeekMagicDataUpdateCoordinator] = []
+    if device_ids:
+        if isinstance(device_ids, str):
+            device_ids = [device_ids]
+
+        dev_reg = dr.async_get(hass)
+        for device_id in device_ids:
+            device_entry = dev_reg.async_get(device_id)
+            if not device_entry or not device_entry.config_entries:
+                continue
+
+            config_entry_id = next(iter(device_entry.config_entries))
+            if config_entry_id in hass.data[DOMAIN]:
+                coordinators.append(hass.data[DOMAIN][config_entry_id])
+    else:
+        # Target all devices
+        coordinators.extend(hass.data[DOMAIN].values())
+
+    if not coordinators:
+        _LOGGER.error("No Geek Magic devices found")
+
+    return coordinators
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Geek Magic from a config entry."""
     hass.data.setdefault(DOMAIN, {})
@@ -52,28 +81,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             html = call.data.get("html")
             cache = call.data.get("cache", True)
 
-            # Collect coordinators based on device_ids or all configured devices
-            coordinators = []
-            if device_ids:
-                if isinstance(device_ids, str):
-                    device_ids = [device_ids]
-
-                dev_reg = dr.async_get(hass)
-                for device_id in device_ids:
-                    device_entry = dev_reg.async_get(device_id)
-                    if not device_entry or not device_entry.config_entries:
-                        continue
-
-                    config_entry_id = next(iter(device_entry.config_entries))
-                    if config_entry_id in hass.data[DOMAIN]:
-                        coordinators.append(hass.data[DOMAIN][config_entry_id])
-            else:
-                # Target all devices
-                for coordinator in hass.data[DOMAIN].values():
-                    coordinators.append(coordinator)
-
+            coordinators = await _async_get_coordinators_by_device_id(hass, device_ids)
             if not coordinators:
-                _LOGGER.error("No Geek Magic devices found to send HTML to")
                 return
 
             for coordinator in coordinators:
@@ -208,42 +217,25 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 _LOGGER.error("Error resizing image: %s", e)
                 return
 
-            # Collect clients based on device_ids or all configured devices
-            target_clients = []
-            if device_ids:
-                if isinstance(device_ids, str):
-                    device_ids = [device_ids]
-
-                dev_reg = dr.async_get(hass)
-                for device_id in device_ids:
-                    device_entry = dev_reg.async_get(device_id)
-                    if not device_entry or not device_entry.config_entries:
-                        continue
-
-                    config_entry_id = next(iter(device_entry.config_entries))
-                    if config_entry_id in hass.data[DOMAIN]:
-                        coordinator = hass.data[DOMAIN][config_entry_id]
-                        target_clients.append(coordinator.client)
-            else:
-                # Target all devices
-                for coordinator in hass.data[DOMAIN].values():
-                    target_clients.append(coordinator.client)
-
-            if not target_clients:
-                _LOGGER.error("No Geek Magic devices found to upload image to")
+            coordinators = await _async_get_coordinators_by_device_id(hass, device_ids)
+            if not coordinators:
                 return
 
-            for client in target_clients:
+            for coordinator in coordinators:
                 try:
                     filename = "geekmagic.jpg"
-                    await client.async_upload_file(resized_image_data, filename)
-                    await client.async_set_image(filename)
+                    await coordinator.client.async_upload_file(resized_image_data, filename)
+                    await coordinator.client.async_set_image(filename)
                 except Exception as e:
-                    _LOGGER.error("Error uploading image for device: %s", e)
+                    _LOGGER.error("Error uploading image: %s", e)
 
         hass.services.async_register(DOMAIN, "send_image", handle_send_image)
 
-    if not hass.services.has_service(DOMAIN, "send_message"):
+    # Check for supported firmware
+    model = coordinator.data.get("m")
+    is_aydarik = isinstance(model, str) and model == "aydarik"
+
+    if is_aydarik and not hass.services.has_service(DOMAIN, "send_message"):
         async def handle_send_message(call):
             device_ids = call.data.get("device_id")
             custom_message = call.data.get("custom_message")
@@ -254,31 +246,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 _LOGGER.error("No message provided")
                 return
 
-            # Collect coordinators based on device_ids or all configured devices
-            coordinators = []
-            if device_ids:
-                if isinstance(device_ids, str):
-                    device_ids = [device_ids]
-
-                dev_reg = dr.async_get(hass)
-                for device_id in device_ids:
-                    device_entry = dev_reg.async_get(device_id)
-                    if not device_entry or not device_entry.config_entries:
-                        continue
-
-                    config_entry_id = next(iter(device_entry.config_entries))
-                    if config_entry_id in hass.data[DOMAIN]:
-                        coordinators.append(hass.data[DOMAIN][config_entry_id])
-            else:
-                # Target all devices
-                for coordinator in hass.data[DOMAIN].values():
-                    coordinators.append(coordinator)
-
+            coordinators = await _async_get_coordinators_by_device_id(hass, device_ids)
             if not coordinators:
-                _LOGGER.error("No Geek Magic devices found to send message to")
                 return
 
             for coordinator in coordinators:
+                if coordinator.data.get("m") != "aydarik":
+                    continue
                 try:
                     await coordinator.client.async_set_message(custom_message, message_subject, message_style)
                 except Exception as e:
@@ -286,86 +260,50 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         hass.services.async_register(DOMAIN, "send_message", handle_send_message)
 
-        if not hass.services.has_service(DOMAIN, "set_countdown"):
-            async def handle_set_countdown(call):
-                device_ids = call.data.get("device_id")
-                countdown_datetime = call.data.get("countdown_datetime")
-                countdown_subject = call.data.get("countdown_subject", "")
+    if is_aydarik and not hass.services.has_service(DOMAIN, "set_countdown"):
+        async def handle_set_countdown(call):
+            device_ids = call.data.get("device_id")
+            countdown_datetime = call.data.get("countdown_datetime")
+            countdown_subject = call.data.get("countdown_subject", "")
 
-                if not countdown_datetime:
-                    _LOGGER.error("No date-time provided for countdown")
-                    return
+            if not countdown_datetime:
+                _LOGGER.error("No date-time provided for countdown")
+                return
 
-                # Collect coordinators based on device_ids or all configured devices
-                coordinators = []
-                if device_ids:
-                    if isinstance(device_ids, str):
-                        device_ids = [device_ids]
+            coordinators = await _async_get_coordinators_by_device_id(hass, device_ids)
+            if not coordinators:
+                return
 
-                    dev_reg = dr.async_get(hass)
-                    for device_id in device_ids:
-                        device_entry = dev_reg.async_get(device_id)
-                        if not device_entry or not device_entry.config_entries:
-                            continue
-
-                        config_entry_id = next(iter(device_entry.config_entries))
-                        if config_entry_id in hass.data[DOMAIN]:
-                            coordinators.append(hass.data[DOMAIN][config_entry_id])
-                else:
-                    # Target all devices
-                    for coordinator in hass.data[DOMAIN].values():
-                        coordinators.append(coordinator)
-
-                if not coordinators:
-                    _LOGGER.error("No Geek Magic devices found to set countdown timer")
-                    return
-
-                for coordinator in coordinators:
-                    try:
-                        await coordinator.client.async_set_countdown(countdown_datetime, countdown_subject)
-                    except Exception as e:
-                        _LOGGER.error("Error starting countdown timer on device: %s", e)
+            for coordinator in coordinators:
+                if coordinator.data.get("m") != "aydarik":
+                    continue
+                try:
+                    await coordinator.client.async_set_countdown(countdown_datetime, countdown_subject)
+                except Exception as e:
+                    _LOGGER.error("Error starting countdown timer on device: %s", e)
 
         hass.services.async_register(DOMAIN, "set_countdown", handle_set_countdown)
 
-        if not hass.services.has_service(DOMAIN, "set_note"):
-            async def handle_set_note(call):
-                device_ids = call.data.get("device_id")
-                note = call.data.get("note", "")
+    if is_aydarik and not hass.services.has_service(DOMAIN, "set_note"):
+        async def handle_set_note(call):
+            device_ids = call.data.get("device_id")
+            note = call.data.get("note", "")
 
-                if not note:
-                    _LOGGER.error("No note provided")
-                    return
+            if not note:
+                _LOGGER.error("No note provided")
+                return
 
-                # Collect coordinators based on device_ids or all configured devices
-                coordinators = []
-                if device_ids:
-                    if isinstance(device_ids, str):
-                        device_ids = [device_ids]
+            coordinators = await _async_get_coordinators_by_device_id(hass, device_ids)
+            if not coordinators:
+                return
 
-                    dev_reg = dr.async_get(hass)
-                    for device_id in device_ids:
-                        device_entry = dev_reg.async_get(device_id)
-                        if not device_entry or not device_entry.config_entries:
-                            continue
-
-                        config_entry_id = next(iter(device_entry.config_entries))
-                        if config_entry_id in hass.data[DOMAIN]:
-                            coordinators.append(hass.data[DOMAIN][config_entry_id])
-                else:
-                    # Target all devices
-                    for coordinator in hass.data[DOMAIN].values():
-                        coordinators.append(coordinator)
-
-                if not coordinators:
-                    _LOGGER.error("No Geek Magic devices found to set note")
-                    return
-
-                for coordinator in coordinators:
-                    try:
-                        await coordinator.client.async_set_note(note)
-                    except Exception as e:
-                        _LOGGER.error("Error setting note on device: %s", e)
+            for coordinator in coordinators:
+                if coordinator.data.get("m") != "aydarik":
+                    continue
+                try:
+                    await coordinator.client.async_set_note(note)
+                except Exception as e:
+                    _LOGGER.error("Error setting note on device: %s", e)
 
         hass.services.async_register(DOMAIN, "set_note", handle_set_note)
 
