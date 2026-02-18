@@ -126,32 +126,33 @@ class GeekMagicApiClient:
         """Set the brightness."""
         await self._api_wrapper("get", "set", params={"brt": value}, is_json=False)
 
-    async def async_set_image(self, filename: str) -> None:
+    async def async_set_image(self, filename: str, timeout: int, force_switch: bool) -> None:
         """Set the image."""
         # /set?img=/image/<filename>
-        await self._api_wrapper("get", "set", params={"img": f"/image/{filename}"}, is_json=False)
-        # Switch to theme 3 (Photo Album)
-        await self.async_set_theme(3)
+        await self._api_wrapper("get", "set", params={"img": f"/image/{filename}", "timeout": timeout}, is_json=False)
+        if force_switch:
+            # Switch to theme 3 (Photo Album)
+            await self.async_set_theme(3)
 
     async def async_set_small_image(self, filename: str) -> None:
         """Set the small (weather) image."""
         # /set?img=/gif/<filename>
         await self._api_wrapper("get", "set", params={"gif": f"/gif/{filename}"}, is_json=False)
 
-    async def async_set_message(self, custom_message: str, subject: str, style: str) -> None:
+    async def async_set_message(self, custom_message: str, subject: str, style: str, timeout: int) -> None:
         """Set custom message."""
         # /set?msg=<custom_message>&sbj=<subject>&style=<style>
-        await self._api_wrapper("get", "set", params={"msg": custom_message, "sbj": subject, "style": style}, is_json=False)
+        await self._api_wrapper("get", "set", params={"msg": custom_message, "sbj": subject, "style": style, "timeout": timeout}, is_json=False)
 
-    async def async_set_countdown(self, datetime: str, subject: str) -> None:
+    async def async_set_countdown(self, datetime: str, subject: str, timeout: int) -> None:
         """Set countdown."""
         # /set?cnt=<datetime>&sbj=<subject>
-        await self._api_wrapper("get", "set", params={"cnt": datetime, "sbj": subject}, is_json=False)
+        await self._api_wrapper("get", "set", params={"cnt": datetime, "sbj": subject, "timeout": timeout}, is_json=False)
 
-    async def async_set_note(self, note: str) -> None:
+    async def async_set_note(self, note: str, timeout: int) -> None:
         """Set sticky note."""
         # /set?note=<note>
-        await self._api_wrapper("get", "set", params={"note": note}, is_json=False)
+        await self._api_wrapper("get", "set", params={"note": note, "timeout": timeout}, is_json=False)
 
     async def async_upload_file(self, file_data: bytes, filename: str) -> None:
         """Upload a file to the device."""

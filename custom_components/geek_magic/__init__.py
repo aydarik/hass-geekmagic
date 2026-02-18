@@ -72,6 +72,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
+    # Check for supported firmware
+    model = coordinator.data.get("m")
+    is_aydarik = isinstance(model, str) and model == "aydarik"
+
     # Register services in `async_setup_entry` but check if they are already registered.
     if not hass.services.has_service(DOMAIN, "send_html"):
         async def handle_send_html(call):
@@ -80,6 +84,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             text = call.data.get("text", "")
             html = call.data.get("html")
             cache = call.data.get("cache", True)
+            timeout = call.data.get("timeout")
 
             coordinators = await _async_get_coordinators_by_device_id(hass, device_ids)
             if not coordinators:
@@ -126,7 +131,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     filename = "geekmagic.jpg"
                     await client.async_upload_file(image_data, filename)
                     # Set image
-                    await client.async_set_image(filename)
+                    await client.async_set_image(filename, timeout, not is_aydarik)
                 except Exception as e:
                     _LOGGER.error("Error uploading image to device: %s", e)
 
@@ -137,6 +142,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             device_ids = call.data.get("device_id")
             image_path = call.data.get("image_path")
             resize_mode = call.data.get("resize_mode", "stretch")
+            timeout = call.data.get("timeout")
 
             if not image_path:
                 _LOGGER.error("No image path provided")
@@ -225,15 +231,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 try:
                     filename = "geekmagic.jpg"
                     await coordinator.client.async_upload_file(resized_image_data, filename)
-                    await coordinator.client.async_set_image(filename)
+                    await coordinator.client.async_set_image(filename, timeout, not is_aydarik)
                 except Exception as e:
                     _LOGGER.error("Error uploading image: %s", e)
 
         hass.services.async_register(DOMAIN, "send_image", handle_send_image)
-
-    # Check for supported firmware
-    model = coordinator.data.get("m")
-    is_aydarik = isinstance(model, str) and model == "aydarik"
 
     if is_aydarik and not hass.services.has_service(DOMAIN, "send_message"):
         async def handle_send_message(call):
@@ -241,6 +243,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             custom_message = call.data.get("custom_message")
             message_subject = call.data.get("message_subject", "")
             message_style = call.data.get("message_style", "")
+            timeout = call.data.get("timeout")
 
             if not custom_message:
                 _LOGGER.error("No message provided")
@@ -254,7 +257,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if coordinator.data.get("m") != "aydarik":
                     continue
                 try:
-                    await coordinator.client.async_set_message(custom_message, message_subject, message_style)
+                    await coordinator.client.async_set_message(custom_message, message_subject, message_style, timeout)
                 except Exception as e:
                     _LOGGER.error("Error sending custom message to device: %s", e)
 
@@ -265,6 +268,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             device_ids = call.data.get("device_id")
             countdown_datetime = call.data.get("countdown_datetime")
             countdown_subject = call.data.get("countdown_subject", "")
+            timeout = call.data.get("timeout")
 
             if not countdown_datetime:
                 _LOGGER.error("No date-time provided for countdown")
@@ -278,7 +282,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if coordinator.data.get("m") != "aydarik":
                     continue
                 try:
-                    await coordinator.client.async_set_countdown(countdown_datetime, countdown_subject)
+                    await coordinator.client.async_set_countdown(countdown_datetime, countdown_subject, timeout=timeout)
                 except Exception as e:
                     _LOGGER.error("Error starting countdown timer on device: %s", e)
 
@@ -288,6 +292,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         async def handle_set_note(call):
             device_ids = call.data.get("device_id")
             note = call.data.get("note", "")
+            timeout = call.data.get("timeout")
 
             if not note:
                 _LOGGER.error("No note provided")
@@ -301,7 +306,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if coordinator.data.get("m") != "aydarik":
                     continue
                 try:
-                    await coordinator.client.async_set_note(note)
+                    await coordinator.client.async_set_note(note, timeout=timeout)
                 except Exception as e:
                     _LOGGER.error("Error setting note on device: %s", e)
 

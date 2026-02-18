@@ -32,6 +32,16 @@ send_html:
       default: true
       selector:
         boolean: { }
+    timeout:
+      name: Timeout
+      description: Optional timeout (seconds) to switch back to the Clock screen. 💻 Supported firmwares [aydarik]
+      required: false
+      selector:
+        number:
+          min: 1
+          step: 1
+          mode: box
+          unit_of_measurement: s
 
 send_image:
   name: Send image
@@ -64,6 +74,16 @@ send_image:
               value: fit
             - label: Crop to 240x240 (center)
               value: crop
+    timeout:
+      name: Timeout
+      description: Optional timeout (seconds) to switch back to the Clock screen. 💻 Supported firmwares [aydarik]
+      required: false
+      selector:
+        number:
+          min: 1
+          step: 1
+          mode: box
+          unit_of_measurement: s
 
 send_message:
   name: Send custom message
@@ -102,6 +122,16 @@ send_message:
       required: true
       selector:
         text:
+    timeout:
+      name: Timeout
+      description: Optional timeout (seconds) to switch back to the Clock screen.
+      required: false
+      selector:
+        number:
+          min: 1
+          step: 1
+          mode: box
+          unit_of_measurement: s
 
 set_countdown:
   name: Start countdown timer
@@ -127,6 +157,16 @@ set_countdown:
       required: true
       selector:
         datetime:
+    timeout:
+      name: Timeout
+      description: Optional timeout (seconds) to switch to the Clock screen after the timer finishes.
+      required: false
+      selector:
+        number:
+          min: 1
+          step: 1
+          mode: box
+          unit_of_measurement: s
 
 set_note:
   name: Set sticky note
@@ -146,3 +186,13 @@ set_note:
       required: true
       selector:
         text:
+    timeout:
+      name: Timeout
+      description: Optional timeout (seconds) for clearing the note.
+      required: false
+      selector:
+        number:
+          min: 1
+          step: 1
+          mode: box
+          unit_of_measurement: s
