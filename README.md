@@ -5,38 +5,49 @@
 
 This custom component enables integration with the **Geek Magic** smart display device in Home Assistant.
 
+The latest tested and supported official firmware version
+is [Ultra-V9.0.43](https://github.com/GeekMagicClock/smalltv-ultra/tree/main/Ultra-V9.0.43).
+
 > [!TIP]
 > Also supports custom firmwares, which are designed with backward compatibility.
-> Currently focused: [aydarik/geekmagic-tv-esp8266](https://github.com/aydarik/geekmagic-tv-esp8266).
+>
+> 🚀 Currently focused: [aydarik/geekmagic-tv-esp8266](https://github.com/aydarik/geekmagic-tv-esp8266).
 
 ## Features
 
-- **Controls**: 
-  - Change themes.
-  - Adjust brightness.
-  - Select images.
+- **Controls**:
+    - Change themes.
+    - Adjust brightness.
+    - Select images.
 - **Sensors**: Monitor free space on the device.
-
 
 - **On custom firmwares**:
     - Send custom messages.
     - Start countdown timers.
+    - Attach sticky notes.
 
 ![Controls](/images/screenshot_controls.png)
 
-- **HTML Rendering & Upload**: Send text or raw HTML to the device, which is rendered to an image and uploaded automatically.
+- **HTML Rendering & Upload**: Send text or raw HTML to the device, which is rendered to an image and uploaded
+  automatically.
 
 ![Home stats](/images/photo_home_stats.jpg) ![Pomodoro](/images/photo_pomodoro.jpg)
 
-- **Image Upload**: Send an image from a local path (e.g., camera snapshot) or URL to the device. The image will be automatically resized based on the selected mode.
+- **Image Upload**: Send an image from a local path (e.g., camera snapshot) or URL to the device. The image will be
+  automatically resized based on the selected mode.
 
 ![Image upload](/images/photo_image.jpg)
 
 ## Alternatives
 
-This integration is intended to remain simple, based on the assumption that HTML/CSS/JS already provide sufficient flexibility to render data in many different ways. With scripting and automation in Home Assistant itself, it’s also quite easy to build more complex logic when needed (see the [Pomodoro timer](/examples/script.pomodoro.yaml) as an example).
+This integration is intended to remain simple, based on the assumption that HTML/CSS/JS already provide sufficient
+flexibility to render data in many different ways. With scripting and automation in Home Assistant itself, it’s also
+quite easy to build more complex logic when needed (see the [Pomodoro timer](/examples/script.pomodoro.yaml) as an
+example).
 
-If you’re looking for a more feature-rich solution, you may want to check out the [GeekMagic Display for Home Assistant](https://github.com/adrienbrault/geekmagic-hacs) integration by [@adrienbrault](https://github.com/adrienbrault).
+If you’re looking for a more feature-rich solution, you may want to check out
+the [GeekMagic Display for Home Assistant](https://github.com/adrienbrault/geekmagic-hacs) integration
+by [@adrienbrault](https://github.com/adrienbrault).
 
 ## Installation
 
@@ -46,35 +57,35 @@ If you’re looking for a more feature-rich solution, you may want to check out 
 
 or manually:
 
-1.  Open **HACS** in Home Assistant.
-2.  Go to **Integrations**.
-3.  Click the three dots in the top right corner and select **Custom repositories**.
-4.  Add the URL of this repository.
-5.  Select **Integration** as the category.
-6.  Click **Add**.
-7.  Find **Geek Magic** in the integration list and install it.
-8.  Restart Home Assistant.
+1. Open **HACS** in Home Assistant.
+2. Find **Geek Magic** in the integration list and install it.
+3. Restart Home Assistant.
 
 ### Manual Installation
 
-1.  Download and unpack the latest [release](https://github.com/aydarik/hass-geekmagic/releases) zip file to your Home Assistant `config/custom_components/geek_magic` directory.
-2.  Restart Home Assistant.
+1. Download and unpack the latest [release](https://github.com/aydarik/hass-geekmagic/releases) zip file to your Home
+   Assistant `config/custom_components/geek_magic` directory.
+2. Restart Home Assistant.
 
 ## Configuration
 
-1.  Go to **Settings > Devices & Services > Add Integration**.
-2.  Search for **Geek Magic**.
+1. Go to **Settings > Devices & Services > Add Integration**.
+2. Search for **Geek Magic**.
 
 ### Basic Setup
-During the initial setup, you need to provide the device's IP address. You can also optionally configure the **Render URL** and **HTML Template** at this stage.
+
+During the initial setup, you need to provide the device's IP address. You can also optionally configure the **Render
+URL** and **HTML Template** at this stage.
 
 ### Advanced Options (HTML Rendering)
+
 If you skipped configuring the Render URL during setup, you can do it later:
-1.  Go to **Settings > Devices & Services**.
-2.  Click **Geek Magic**.
-3.  Click **Configure**.
-4.  **Render URL**: Enter the URL of your rendering service (e.g., `http://127.0.0.1:8000/render`).
-5.  **HTML Template**: (Optional) Customize the default HTML template used when sending simple subject/text messages.
+
+1. Go to **Settings > Devices & Services**.
+2. Click **Geek Magic**.
+3. Click **Configure**.
+4. **Render URL**: Enter the URL of your rendering service (e.g., `http://127.0.0.1:8000/render`).
+5. **HTML Template**: (Optional) Customize the default HTML template used when sending simple subject/text messages.
 
 ## Services
 
@@ -84,13 +95,13 @@ Sends a message or custom HTML to the device. The content is rendered to a 240x2
 
 #### Parameters
 
-| Name | Type | Description | Required |
-| :--- | :--- | :--- | :--- |
-| `device_id` | string | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified) | No |
-| `subject` | string | Title/Subject text to display (inserted into template) | No* |
-| `text` | string | Body text to display (inserted into template) | No* |
-| `html` | string | Raw HTML to render. Overrides `subject` and `text`. | No* |
-| `cache` | boolean | Whether to use cached results for the render service. | No (default: `true`) |
+| Name        | Type    | Description                                                                                     | Required             |
+|:------------|:--------|:------------------------------------------------------------------------------------------------|:---------------------|
+| `device_id` | string  | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified) | No                   |
+| `subject`   | string  | Title/Subject text to display (inserted into template)                                          | No*                  |
+| `text`      | string  | Body text to display (inserted into template)                                                   | No*                  |
+| `html`      | string  | Raw HTML to render. Overrides `subject` and `text`.                                             | No*                  |
+| `cache`     | boolean | Whether to use cached results for the render service.                                           | No (default: `true`) |
 
 *\*Either `html` OR (`subject` and `text`) must be provided.*
 
@@ -411,15 +422,16 @@ data:
 
 ### Send image
 
-Sends a JPEG image from a local path or URL to the device. The image will be automatically resized based on the selected mode.
+Sends a JPEG image from a local path or URL to the device. The image will be automatically resized based on the selected
+mode.
 
 #### Parameters
 
-| Field | Type | Description | Required |
-| --- | --- | --- | --- |
-| `device_id` | string | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified) | No |
-| `image_path` | string | Local path (e.g., `/config/www/test.jpg`) or URL (e.g., `https://...`) | Yes |
-| `resize_mode` | string | `stretch` (force 240x240), `fit` (longest side 240) or `crop` (center crop to 240x240) | No (default: `stretch`) |
+| Field         | Type   | Description                                                                                     | Required                |
+|---------------|--------|-------------------------------------------------------------------------------------------------|-------------------------|
+| `device_id`   | string | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified) | No                      |
+| `image_path`  | string | Local path (e.g., `/config/www/test.jpg`) or URL (e.g., `https://...`)                          | Yes                     |
+| `resize_mode` | string | `stretch` (force 240x240), `fit` (longest side 240) or `crop` (center crop to 240x240)          | No (default: `stretch`) |
 
 #### Examples
 
@@ -457,12 +469,12 @@ Sends a custom message to the device. Supported **ONLY on custom firmware**.
 
 #### Parameters
 
-| Field | Type | Description | Required |
-| --- | --- | --- | --- |
-| `device_id` | string | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified) | No |
-| `message_style` | string | Style of the message. Currently supported: `default`, `center`, `big_num` | No |
-| `message_subject` | string | Message subject, shown as a title. | No |
-| `custom_message` | string | Custom message to show on the Geek Magic device. | Yes |
+| Field             | Type   | Description                                                                                     | Required |
+|-------------------|--------|-------------------------------------------------------------------------------------------------|----------|
+| `device_id`       | string | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified) | No       |
+| `message_style`   | string | Style of the message. Currently supported: `default`, `center`, `big_num`                       | No       |
+| `message_subject` | string | Message subject, shown as a title.                                                              | No       |
+| `custom_message`  | string | Custom message to show on the Geek Magic device.                                                | Yes      |
 
 #### Examples
 
@@ -473,11 +485,15 @@ Sends a custom message to the device. Supported **ONLY on custom firmware**.
 action: geek_magic.send_message
 data:
   message_style: center
-  message_subject: test
-  custom_message: hello\nworld!
+  message_subject: Notification
+  custom_message: |
+    Hello world!
+    Привет, мир!
 ```
 
 </details>
+
+![Custom message](/images/photo_custom_message.jpg)
 
 ### Start countdown timer
 
@@ -485,11 +501,11 @@ Start a countdown timer to a specified date and time. Supported **ONLY on custom
 
 #### Parameters
 
-| Field | Type | Description | Required |
-| --- | --- | --- | --- |
-| `device_id` | string | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified) | No |
-| `countdown_subject` | string | Countdown subject, shown as a title. | No |
-| `countdown_datetime` | string | Date and time in the format `YYYY-MM-DD HH:mm:ss` or ISO 8601. | Yes |
+| Field                | Type   | Description                                                                                     | Required |
+|----------------------|--------|-------------------------------------------------------------------------------------------------|----------|
+| `device_id`          | string | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified) | No       |
+| `countdown_subject`  | string | Countdown subject, shown as a title.                                                            | No       |
+| `countdown_datetime` | string | Date and time in the format `YYYY-MM-DD HH:mm:ss` or ISO 8601.                                  | Yes      |
 
 #### Examples
 
@@ -499,11 +515,39 @@ Start a countdown timer to a specified date and time. Supported **ONLY on custom
 ```yaml
 action: geek_magic.set_countdown
 data:
-  countdown_subject: test
+  countdown_subject: Next call
   countdown_datetime: "2026-02-16 09:30:00"
 ```
 
 </details>
+
+![Countdown](/images/photo_custom_countdown.jpg)
+
+### Set sticky note
+
+Sets a sticky note on the Clock screen. Supported **ONLY on custom firmware**.
+
+#### Parameters
+
+| Field       | Type   | Description                                                                                     | Required |
+|-------------|--------|-------------------------------------------------------------------------------------------------|----------|
+| `device_id` | string | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified) | No       |
+| `note`      | string | Note to show on the Clock screen.                                                               | Yes      |
+
+#### Examples
+
+<details>
+<summary>Setting sticky note</summary>
+
+```yaml
+action: geek_magic.set_note
+data:
+  note: "-1, snow"
+```
+
+</details>
+
+![Sticky Note](/images/photo_custom_note.jpg)
 
 ## Render API Requirement
 
@@ -511,7 +555,9 @@ This integration requires an external service to convert HTML to an image if you
 
 ### Predefined Renderer
 
-The integration comes with a **predefined renderer** (`https://text2image.gumerbaev.ru/render`) that works out of the box. However, for privacy reasons, we **strongly recommend** spinning up your own instance, as the HTML content (which may include sensitive data from your smart home) will be sent to an external server.
+The integration comes with a **predefined renderer** (`https://text2image.gumerbaev.ru/render`) that works out of the
+box. However, for privacy reasons, we **strongly recommend** spinning up your own instance, as the HTML content (which
+may include sensitive data from your smart home) will be sent to an external server.
 
 ### Self-Hosted Renderer (Recommended)
 
@@ -523,10 +569,10 @@ You can use the [Text2Image](https://github.com/aydarik/text2image) service.
 
 ##### Manual installation
 
-1.  Add the repository URL to your Home Assistant Add-on Store repositories:
-    `https://github.com/aydarik/hass-addons`
-2.  Install the "Text2Image" add-on.
-3.  Start the add-on.
+1. Add the repository URL to your Home Assistant Add-on Store repositories:
+   `https://github.com/aydarik/hass-addons`
+2. Install the "Text2Image" add-on.
+3. Start the add-on.
 
 #### Docker
 
@@ -534,11 +580,13 @@ You can use the [Text2Image](https://github.com/aydarik/text2image) service.
 docker run -d -p 8000:8000 ghcr.io/aydarik/text2image:latest
 ```
 
-> Then configure the **Render URL** in the integration settings to point to your local instance (e.g., `http://127.0.0.1:8000/render`).
+> Then configure the **Render URL** in the integration settings to point to your local instance (e.g.,
+`http://127.0.0.1:8000/render`).
 
 ### API Specification
 
 If you prefer, you can also implement your own service. It should follow these requirements:
+
 - Accept a POST request.
 - Body: `{"html": "<your html>", "cache": true}`.
 - Return a 240x240px `image/jpeg` image.
