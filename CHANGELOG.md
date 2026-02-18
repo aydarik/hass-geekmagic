@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.0.0] - 2026-02-18
+
+Starting from v2, the addon will focus more on custom firmware support, while keeping factory firmware backward compatibility.
+Factory firmware is very limited for automations, so there is not much to work with. The latest tested and supported version is [Ultra-V9.0.43](https://github.com/GeekMagicClock/smalltv-ultra/tree/main/Ultra-V9.0.43).
+
+The custom firmware under the focus currently is [aydarik/geekmagic-tv-esp8266](https://github.com/aydarik/geekmagic-tv-esp8266).
+
+### Added
+- Added a service for a sticky note on the Clock screen.
+
+### Changed
+- Disabled services unsupported by the firmware.
+
 ## [1.6.1] - 2026-02-14
 
 ### Added
