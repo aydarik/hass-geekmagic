@@ -547,10 +547,11 @@ Sets a sticky note on the Clock screen. Supported **ONLY on custom firmware**.
 
 #### Parameters
 
-| Field       | Type   | Description                                                                                     | Required |
-|-------------|--------|-------------------------------------------------------------------------------------------------|----------|
-| `device_id` | string | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified) | No       |
-| `note`      | string | Note to show on the Clock screen.                                                               | Yes      |
+| Field       | Type    | Description                                                                                     | Required             |
+|-------------|---------|-------------------------------------------------------------------------------------------------|----------------------|
+| `device_id` | string  | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified) | No                   |
+| `note`      | string  | Note to show on the Clock screen.                                                               | Yes                  |
+| `force`     | boolean | Whether to force redraw the screen. Otherwise, updates with the next rotation.                  | No (default: `true`) |
 
 #### Examples
 

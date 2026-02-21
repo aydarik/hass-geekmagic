@@ -13,22 +13,26 @@ send_html:
     subject:
       name: Subject
       description: The subject/title to display.
+      required: false
       selector:
         text:
     text:
       name: Text
       description: The main text message to display.
+      required: false
       selector:
         text:
     html:
       name: HTML Content
       description: Raw HTML content to render. Overrides subject and text.
+      required: false
       selector:
         text:
           multiline: true
     cache:
       name: Cache
       description: Whether to use cached results for the render service.
+      required: true
       default: true
       selector:
         boolean: { }
@@ -64,6 +68,7 @@ send_image:
     resize_mode:
       name: Resize Mode
       description: How to resize the image ("stretch" if not specified).
+      required: false
       default: stretch
       selector:
         select:
@@ -186,6 +191,13 @@ set_note:
       required: true
       selector:
         text:
+    force:
+      name: Force update
+      description: Whether to force redraw the screen. Otherwise, updates with the next rotation.
+      required: false
+      default: true
+      selector:
+        boolean: { }
     timeout:
       name: Timeout
       description: Optional timeout (seconds) for clearing the note.

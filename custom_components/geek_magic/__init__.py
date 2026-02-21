@@ -292,6 +292,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         async def handle_set_note(call):
             device_ids = call.data.get("device_id")
             note = call.data.get("note", "")
+            force = call.data.get("force", True)
             timeout = call.data.get("timeout")
 
             if not note:
@@ -306,7 +307,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if coordinator.data.get("m") != "aydarik":
                     continue
                 try:
-                    await coordinator.client.async_set_note(note, timeout=timeout)
+                    await coordinator.client.async_set_note(note, force=force, timeout=timeout)
                 except Exception as e:
                     _LOGGER.error("Error setting note on device: %s", e)
 

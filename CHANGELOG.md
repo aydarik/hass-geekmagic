@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.0.1] - 2026-02-21
+
+### Added
+- Added an option to force redraw of the note.
+
 ## [2.0.0] - 2026-02-18
 
 Starting from v2, the addon will focus more on custom firmware support, while keeping factory firmware backward compatibility.
