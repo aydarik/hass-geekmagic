@@ -108,7 +108,8 @@ class GeekMagicThemeSelect(CoordinatorEntity, SelectEntity):
             theme_id = THEMES[option]
 
         await self.coordinator.client.async_set_theme(theme_id)
-        await self.coordinator.async_request_refresh()
+        self.coordinator.data["theme"] = theme_id
+        self.async_write_ha_state()
 
 
 class GeekMagicImageSelect(CoordinatorEntity, SelectEntity):

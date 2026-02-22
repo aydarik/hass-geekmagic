@@ -70,7 +70,8 @@ class GeekMagicBrightnessNumber(GeekMagicNumber):
     async def async_set_native_value(self, value: float) -> None:
         """Set the value."""
         await self.coordinator.client.async_set_brightness(int(value))
-        await self.coordinator.async_request_refresh()
+        self.coordinator.data["brt"] = int(value)
+        self.async_write_ha_state()
 
 
 class GeekMagicUpdateIntervalNumber(GeekMagicNumber):
@@ -79,7 +80,7 @@ class GeekMagicUpdateIntervalNumber(GeekMagicNumber):
     _attr_name = "Update Interval"
     _attr_unique_id = "update_interval"
     _attr_native_min_value = 5
-    _attr_native_max_value = 300
+    _attr_native_max_value = 900
     _attr_native_step = 5
     _attr_native_unit_of_measurement = "s"
     _attr_icon = "mdi:timer"

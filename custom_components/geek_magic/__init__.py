@@ -91,13 +91,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 return
 
             for coordinator in coordinators:
-                client = coordinator.client
                 config_entry_obj = coordinator.config_entry
-
-                # Get options
                 render_url = config_entry_obj.options.get(CONF_RENDER_URL)
-                html_template = config_entry_obj.options.get(CONF_HTML_TEMPLATE, DEFAULT_HTML_TEMPLATE)
-
                 if not render_url:
                     _LOGGER.error("Render URL not configured for Geek Magic device")
                     continue
@@ -107,6 +102,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                         _LOGGER.error("No html, subject, or text provided")
                         continue
                     # Use template
+                    html_template = config_entry_obj.options.get(CONF_HTML_TEMPLATE, DEFAULT_HTML_TEMPLATE)
                     html_content = html_template.replace("subject", str(subject)).replace("text", str(text))
                 else:
                     html_content = html
@@ -128,10 +124,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
                 try:
                     filename = "geekmagic.jpg"
-                    # Upload image
-                    await client.async_upload_file(image_data, filename)
-                    # Set image
-                    await client.async_set_image(filename, timeout, not is_aydarik)
+                    await coordinator.client.async_upload_file(image_data, filename)
+                    await coordinator.client.async_set_image(filename, timeout, not is_aydarik)
                 except Exception as e:
                     _LOGGER.error("Error uploading image to device: %s", e)
 

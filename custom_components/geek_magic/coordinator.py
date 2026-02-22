@@ -25,7 +25,7 @@ class GeekMagicDataUpdateCoordinator(DataUpdateCoordinator):
             hass: HomeAssistant,
             client: GeekMagicApiClient,
             entry: ConfigEntry,
-            update_interval_seconds: int = 30,
+            update_interval_seconds,
     ) -> None:
         """Initialize."""
         super().__init__(
@@ -55,5 +55,11 @@ class GeekMagicDataUpdateCoordinator(DataUpdateCoordinator):
 
             return data
 
-        except Exception as exception:
-            raise UpdateFailed(exception) from exception
+        except Exception as e:
+            # Keep current data if already loaded
+            if isinstance(self.data["m"], str):
+                _LOGGER.error("Error updating data: %s", e)
+                return self.data
+
+            raise UpdateFailed(e) from e
+
