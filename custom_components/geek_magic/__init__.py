@@ -5,6 +5,7 @@ import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
@@ -83,6 +84,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             subject = call.data.get("subject", "")
             text = call.data.get("text", "")
             html = call.data.get("html")
+            filename = call.data.get("filename", "geekmagic")
             cache = call.data.get("cache", True)
             timeout = call.data.get("timeout")
 
@@ -94,13 +96,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 config_entry_obj = coordinator.config_entry
                 render_url = config_entry_obj.options.get(CONF_RENDER_URL)
                 if not render_url:
-                    _LOGGER.error("Render URL not configured for Geek Magic device")
-                    continue
+                    raise HomeAssistantError("Render URL not configured for Geek Magic device")
 
                 if not html:
                     if not subject and not text:
-                        _LOGGER.error("No html, subject, or text provided")
-                        continue
+                        raise HomeAssistantError("No html, subject, or text provided")
+
                     # Use template
                     html_template = config_entry_obj.options.get(CONF_HTML_TEMPLATE, DEFAULT_HTML_TEMPLATE)
                     html_content = html_template.replace("subject", str(subject)).replace("text", str(text))
@@ -123,9 +124,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     continue
 
                 try:
-                    filename = "geekmagic.jpg"
-                    await coordinator.client.async_upload_file(image_data, filename)
-                    await coordinator.client.async_set_image(filename, timeout, not is_aydarik)
+                    await coordinator.client.async_upload_file(image_data, f"{filename}.jpg")
+                    await coordinator.client.async_set_image(f"{filename}.jpg", timeout, not is_aydarik)
                 except Exception as e:
                     _LOGGER.error("Error uploading image to device: %s", e)
 
@@ -136,11 +136,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             device_ids = call.data.get("device_id")
             image_path = call.data.get("image_path")
             resize_mode = call.data.get("resize_mode", "stretch")
+            filename = call.data.get("filename", "geekmagic")
             timeout = call.data.get("timeout")
 
-            if not image_path:
-                _LOGGER.error("No image path provided")
+            coordinators = await _async_get_coordinators_by_device_id(hass, device_ids)
+            if not coordinators:
                 return
+
+            if not image_path:
+                raise HomeAssistantError("No image path provided")
 
             # Fetch image data
             image_data = None
@@ -217,15 +221,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 _LOGGER.error("Error resizing image: %s", e)
                 return
 
-            coordinators = await _async_get_coordinators_by_device_id(hass, device_ids)
-            if not coordinators:
-                return
-
             for coordinator in coordinators:
                 try:
-                    filename = "geekmagic.jpg"
-                    await coordinator.client.async_upload_file(resized_image_data, filename)
-                    await coordinator.client.async_set_image(filename, timeout, not is_aydarik)
+                    await coordinator.client.async_upload_file(resized_image_data, f"{filename}.jpg")
+                    await coordinator.client.async_set_image(f"{filename}.jpg", timeout, not is_aydarik)
                 except Exception as e:
                     _LOGGER.error("Error uploading image: %s", e)
 
@@ -240,8 +239,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             timeout = call.data.get("timeout")
 
             if not custom_message:
-                _LOGGER.error("No message provided")
-                return
+                raise HomeAssistantError("No message provided")
 
             coordinators = await _async_get_coordinators_by_device_id(hass, device_ids)
             if not coordinators:
@@ -265,8 +263,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             timeout = call.data.get("timeout")
 
             if not countdown_datetime:
-                _LOGGER.error("No date-time provided for countdown")
-                return
+                raise HomeAssistantError("No date-time provided for countdown")
 
             coordinators = await _async_get_coordinators_by_device_id(hass, device_ids)
             if not coordinators:
@@ -290,8 +287,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             timeout = call.data.get("timeout")
 
             if not note:
-                _LOGGER.error("No note provided")
-                return
+                raise HomeAssistantError("No note provided")
 
             coordinators = await _async_get_coordinators_by_device_id(hass, device_ids)
             if not coordinators:
