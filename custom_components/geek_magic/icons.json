@@ -6,6 +6,9 @@
     "send_image": {
       "service": "mdi:image"
     },
+    "delete_image": {
+      "service": "mdi:image-remove"
+    },
     "send_message": {
       "service": "mdi:text"
     },

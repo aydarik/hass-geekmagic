@@ -58,7 +58,7 @@ class GeekMagicDataUpdateCoordinator(DataUpdateCoordinator):
         except Exception as e:
             # Keep current data if already loaded
             if isinstance(self.data["m"], str):
-                _LOGGER.error("Error updating data: %s", e)
+                _LOGGER.warning("Couldn't updating data: %s", e)
                 return self.data
 
             raise UpdateFailed(e) from e

@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.1.0] - 2026-02-22
+
+### Added
+- Added a custom filename for images.
+- Added a delete image service.
+
 ## [2.0.1] - 2026-02-21
 
 ### Added

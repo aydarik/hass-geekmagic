@@ -230,6 +230,26 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         hass.services.async_register(DOMAIN, "send_image", handle_send_image)
 
+    if not hass.services.has_service(DOMAIN, "delete_image"):
+        async def handle_delete_image(call):
+            device_ids = call.data.get("device_id")
+            filename = call.data.get("filename")
+
+            coordinators = await _async_get_coordinators_by_device_id(hass, device_ids)
+            if not coordinators:
+                return
+
+            if not filename:
+                raise HomeAssistantError("No filename provided")
+
+            for coordinator in coordinators:
+                try:
+                    await coordinator.client.async_delete_image(f"{filename}.jpg")
+                except Exception as e:
+                    _LOGGER.error("Error deleting image: %s", e)
+
+        hass.services.async_register(DOMAIN, "delete_image", handle_delete_image)
+
     if is_aydarik and not hass.services.has_service(DOMAIN, "send_message"):
         async def handle_send_message(call):
             device_ids = call.data.get("device_id")
