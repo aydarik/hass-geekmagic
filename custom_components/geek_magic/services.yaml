@@ -29,6 +29,13 @@ send_html:
       selector:
         text:
           multiline: true
+    filename:
+      name: Filename
+      description: Filename for the generated image ("geekmagic" by default).
+      required: false
+      selector:
+        text:
+          suffix: ".jpg"
     cache:
       name: Cache
       description: Whether to use cached results for the render service.
@@ -69,7 +76,6 @@ send_image:
       name: Resize Mode
       description: How to resize the image ("stretch" if not specified).
       required: false
-      default: stretch
       selector:
         select:
           options:
@@ -79,6 +85,13 @@ send_image:
               value: fit
             - label: Crop to 240x240 (center)
               value: crop
+    filename:
+      name: Filename
+      description: Filename for the image ("geekmagic" by default).
+      required: false
+      selector:
+        text:
+          suffix: ".jpg"
     timeout:
       name: Timeout
       description: Optional timeout (seconds) to switch back to the Clock screen. 💻 Supported firmwares [aydarik]
