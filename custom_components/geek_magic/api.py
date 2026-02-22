@@ -134,6 +134,11 @@ class GeekMagicApiClient:
             # Switch to theme 3 (Photo Album)
             await self.async_set_theme(3)
 
+    async def async_delete_image(self, filename: str) -> None:
+        """Delete the image."""
+        # /delete?file=/image/<filename>
+        await self._api_wrapper("get", "delete", params={"file": f"/image/{filename}"}, is_json=False)
+
     async def async_set_small_image(self, filename: str) -> None:
         """Set the small (weather) image."""
         # /set?img=/gif/<filename>

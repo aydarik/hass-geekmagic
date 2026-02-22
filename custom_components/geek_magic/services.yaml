@@ -103,6 +103,26 @@ send_image:
           mode: box
           unit_of_measurement: s
 
+delete_image:
+  name: Delete image
+  description: Deletes an image from the Geek Magic device.
+  fields:
+    device_id:
+      name: Devices
+      description: The Geek Magic devices to send to (broadcast to all devices if not specified).
+      required: false
+      selector:
+        device:
+          integration: geek_magic
+          multiple: true
+    filename:
+      name: Filename
+      description: Filename for the image to delete.
+      required: true
+      selector:
+        text:
+          suffix: ".jpg"
+
 send_message:
   name: Send custom message
   description: Sends a custom message to the Geek Magic device.
