@@ -547,12 +547,12 @@ Sets a sticky note on the Clock screen. Supported **ONLY on custom firmware**.
 
 #### Parameters
 
-| Field       | Type    | Description                                                                                                                                                                                                                          | Required             |
-|-------------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------|
-| `device_id` | string  | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified)                                                                                                                                      | No                   |
-| `note`      | string  | Note to show on the Clock screen.                                                                                                                                                                                                    | Yes                  |
+| Field       | Type    | Description                                                                                                                                                                                                           | Required             |
+|-------------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------|
+| `device_id` | string  | The device IDs of the Geek Magic devices to send to (broadcast to all devices if not specified)                                                                                                                       | No                   |
+| `note`      | string  | Note to show on the Clock screen.                                                                                                                                                                                     | Yes                  |
 | `rpm`       | integer | Number of rotations per minute. Cannot be less than the number of lines.<br/>Ideally, 60 divided by this number should result in a whole number.<br/>_Example:_ 4 - every 15 seconds; 60 (max) - every single second. | No                   |
-| `force`     | boolean | Whether to force redraw the screen. Otherwise, updates with the next rotation.                                                                                                                                                       | No (default: `true`) |
+| `force`     | boolean | Whether to force redraw the screen. Otherwise, updates with the next rotation.                                                                                                                                        | No (default: `true`) |
 
 #### Examples
 

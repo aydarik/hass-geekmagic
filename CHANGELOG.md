@@ -2,6 +2,9 @@
 
 ## [2.1.1] - 2026-02-23
 
+### Fixed
+- Select image was broken.
+
 ### Added
 - Note rotation speed option.
 

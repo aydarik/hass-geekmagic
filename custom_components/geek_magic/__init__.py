@@ -63,7 +63,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     url = f"http://{entry.data[CONF_IP_ADDRESS]}"
 
     session = async_get_clientsession(hass)
-    client = GeekMagicApiClient(session=session, url=url)
+    client = GeekMagicApiClient(session, url)
 
     # Get update interval from options or use default
     update_interval = entry.options.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
@@ -112,7 +112,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 try:
                     async with session.post(
                             render_url,
-                            json={"html": html_content, "cache": cache},
+                            json={"html": html_content, "cache": "true" if cache else "false"},
                             headers={"Content-Type": "application/json"}
                     ) as resp:
                         if resp.status != 200:
@@ -256,7 +256,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             custom_message = call.data.get("custom_message")
             message_subject = call.data.get("message_subject", "")
             message_style = call.data.get("message_style", "")
-            timeout = call.data.get("timeout")
+            timeout = call.data.get("timeout", 0)
 
             if not custom_message:
                 raise HomeAssistantError("No message provided")
@@ -280,7 +280,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             device_ids = call.data.get("device_id")
             countdown_datetime = call.data.get("countdown_datetime")
             countdown_subject = call.data.get("countdown_subject", "")
-            timeout = call.data.get("timeout")
+            timeout = call.data.get("timeout", 0)
 
             if not countdown_datetime:
                 raise HomeAssistantError("No date-time provided for countdown")
@@ -293,7 +293,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if coordinator.data.get("m") != "aydarik":
                     continue
                 try:
-                    await coordinator.client.async_set_countdown(countdown_datetime, countdown_subject, timeout=timeout)
+                    await coordinator.client.async_set_countdown(countdown_datetime, countdown_subject, timeout)
                 except Exception as e:
                     _LOGGER.error("Error starting countdown timer on device: %s", e)
 
@@ -303,9 +303,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         async def handle_set_note(call):
             device_ids = call.data.get("device_id")
             note = call.data.get("note")
-            rpm = call.data.get("rpm")
+            rpm = call.data.get("rpm", 0)
             force = call.data.get("force", True)
-            timeout = call.data.get("timeout")
+            timeout = call.data.get("timeout", 0)
 
             if not note:
                 raise HomeAssistantError("No note provided")
@@ -318,7 +318,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 if coordinator.data.get("m") != "aydarik":
                     continue
                 try:
-                    await coordinator.client.async_set_note(note, rpm=rpm, force=force, timeout=timeout)
+                    await coordinator.client.async_set_note(note, rpm, force, timeout)
                 except Exception as e:
                     _LOGGER.error("Error setting note on device: %s", e)
 

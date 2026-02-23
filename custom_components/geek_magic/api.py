@@ -3,7 +3,6 @@ import asyncio
 import logging
 import re
 import socket
-from urllib.parse import urlencode
 
 import aiohttp
 import async_timeout
@@ -126,10 +125,14 @@ class GeekMagicApiClient:
         """Set the brightness."""
         await self._api_wrapper("get", "set", params={"brt": value}, is_json=False)
 
-    async def async_set_image(self, filename: str, timeout: int, force_switch: bool) -> None:
+    async def async_set_image(self, filename: str, timeout: int | None, force_switch: bool) -> None:
         """Set the image."""
+        params: dict[str, str | int] = {"img": f"/image/{filename}"}
+        if isinstance(timeout, int) and timeout > 0:
+            params["timeout"] = timeout
+
         # /set?img=/image/<filename>
-        await self._api_wrapper("get", "set", params={"img": f"/image/{filename}", "timeout": timeout}, is_json=False)
+        await self._api_wrapper("get", "set", params=params, is_json=False)
         if force_switch:
             # Switch to theme 3 (Photo Album)
             await self.async_set_theme(3)
@@ -147,17 +150,21 @@ class GeekMagicApiClient:
     async def async_set_message(self, custom_message: str, subject: str, style: str, timeout: int) -> None:
         """Set custom message."""
         # /set?msg=<custom_message>&sbj=<subject>&style=<style>
-        await self._api_wrapper("get", "set", params={"msg": custom_message, "sbj": subject, "style": style, "timeout": timeout}, is_json=False)
+        await self._api_wrapper("get", "set",
+                                params={"msg": custom_message, "sbj": subject, "style": style, "timeout": timeout},
+                                is_json=False)
 
     async def async_set_countdown(self, datetime: str, subject: str, timeout: int) -> None:
         """Set countdown."""
         # /set?cnt=<datetime>&sbj=<subject>
-        await self._api_wrapper("get", "set", params={"cnt": datetime, "sbj": subject, "timeout": timeout}, is_json=False)
+        await self._api_wrapper("get", "set", params={"cnt": datetime, "sbj": subject, "timeout": timeout},
+                                is_json=False)
 
     async def async_set_note(self, note: str, rpm: int, force: bool, timeout: int) -> None:
         """Set sticky note."""
         # /set?note=<note>
-        await self._api_wrapper("get", "set", params={"note": note, "rpm": rpm, "force": force, "timeout": timeout}, is_json=False)
+        await self._api_wrapper("get", "set", params={"note": note, "rpm": rpm, "force": "true" if force else "false",
+                                                      "timeout": timeout}, is_json=False)
 
     async def async_upload_file(self, file_data: bytes, filename: str) -> None:
         """Upload a file to the device."""
@@ -200,7 +207,7 @@ class GeekMagicApiClient:
         request_kwargs = {
             "method": method,
             "url": f"{self._url}/{url}",
-            "params": urlencode(params),
+            "params": params,
         }
 
         if data is not None:
@@ -210,41 +217,34 @@ class GeekMagicApiClient:
             else:
                 # FormData or other types (like bytes, string), let aiohttp handle content-type
                 request_kwargs["data"] = data
-        else:
-            headers["Content-type"] = "application/json; charset=UTF-8"
 
         request_kwargs["headers"] = headers
 
-        for attempt in range(2):
-            try:
-                async with async_timeout.timeout(10):
-                    response = await self._session.request(**request_kwargs)
-                    _LOGGER.debug("Requesting %s with params %s (attempt %s)", f"{self._url}/{url}", params, attempt + 1)
+        try:
+            async with async_timeout.timeout(10):
+                response = await self._session.request(**request_kwargs)
+                _LOGGER.debug("Requesting %s with params %s", f"{self._url}/{url}", params)
 
-                    if response.status == 404:
-                        _LOGGER.info("404 received from %s, using last known value if available", f"{self._url}/{url}")
-                        return None
+                if response.status == 404:
+                    _LOGGER.info("404 received from %s, using last known value if available", f"{self._url}/{url}")
+                    return None
 
-                    response.raise_for_status()
+                response.raise_for_status()
 
-                    if is_json:
-                        json_data = await response.json(content_type=None)
-                        return json_data
+                if is_json:
+                    json_data = await response.json(content_type=None)
+                    return json_data
 
-                    text_data = await response.text()
-                    return text_data
+                text_data = await response.text()
+                if text_data == "FAIL":
+                    _LOGGER.warning("Request %s with params %s returned FAIL", f"{self._url}/{url}", params)
+                return text_data
 
-            except asyncio.TimeoutError as exception:
-                if attempt == 1:
-                    raise Exception(f"Timeout error fetching information from {self._url} - {exception}") from exception
-                _LOGGER.debug("Retrying %s after timeout", url)
-            except (aiohttp.ClientError, socket.gaierror) as exception:
-                if attempt == 1:
-                    raise Exception(f"Error fetching information from {self._url} - {exception}") from exception
-                _LOGGER.debug("Retrying %s after error: %s", url, exception)
-            except Exception as exception:  # pylint: disable=broad-except
-                if attempt == 1:
-                    raise Exception(f"Something really wrong happened! - {exception}") from exception
-                _LOGGER.debug("Retrying %s after unexpected error: %s", url, exception)
+        except asyncio.TimeoutError as exception:
+            raise Exception(f"Timeout error fetching information from {self._url} - {exception}") from exception
+        except (aiohttp.ClientError, socket.gaierror) as exception:
+            raise Exception(f"Error fetching information from {self._url} - {exception}") from exception
+        except Exception as exception:  # pylint: disable=broad-except
+            raise Exception(f"Something really wrong happened! - {exception}") from exception
 
         return None

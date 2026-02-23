@@ -143,7 +143,13 @@ class GeekMagicImageSelect(CoordinatorEntity, SelectEntity):
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
-        await self.coordinator.client.async_set_image(option)
+        model = self.coordinator.data.get("m")
+        if isinstance(model, str) and model == "aydarik":
+            force_switch = False
+        else:
+            force_switch = True
+
+        await self.coordinator.client.async_set_image(option, None, force_switch)
         self._attr_current_option = option
         self.async_write_ha_state()
 
