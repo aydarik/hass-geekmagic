@@ -19,6 +19,12 @@ jobs:
           echo "TAG=$TAG_NAME" >> $GITHUB_OUTPUT
           echo "Building version: $TAG_NAME"
 
+      - name: Update version
+        run: |
+          sed -i 's/0.0.0/${{ steps.get_version.outputs.TAG }}/' custom_components/geek_magic/manifest.json
+          echo "Updated manifest.json with version ${{ steps.get_version.outputs.TAG }}"
+          grep "FIRMWARE_VERSION_STRING" custom_components/geek_magic/manifest.json
+
       - name: Zip
         run: |
           cd custom_components/geek_magic
