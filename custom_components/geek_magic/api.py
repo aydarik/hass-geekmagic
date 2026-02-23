@@ -154,10 +154,10 @@ class GeekMagicApiClient:
         # /set?cnt=<datetime>&sbj=<subject>
         await self._api_wrapper("get", "set", params={"cnt": datetime, "sbj": subject, "timeout": timeout}, is_json=False)
 
-    async def async_set_note(self, note: str, force: bool, timeout: int) -> None:
+    async def async_set_note(self, note: str, rpm: int, force: bool, timeout: int) -> None:
         """Set sticky note."""
         # /set?note=<note>
-        await self._api_wrapper("get", "set", params={"note": note, "force": force, "timeout": timeout}, is_json=False)
+        await self._api_wrapper("get", "set", params={"note": note, "rpm": rpm, "force": force, "timeout": timeout}, is_json=False)
 
     async def async_upload_file(self, file_data: bytes, filename: str) -> None:
         """Upload a file to the device."""

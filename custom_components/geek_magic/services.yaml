@@ -224,6 +224,16 @@ set_note:
       required: true
       selector:
         text:
+    rpm:
+      name: Rotation speed
+      description: Number of rotations per minute. Cannot be less than the number of lines.
+      required: false
+      selector:
+        number:
+          min: 1
+          max: 60
+          step: 1
+          mode: box
     force:
       name: Force update
       description: Whether to force redraw the screen. Otherwise, updates with the next rotation.
