@@ -6,7 +6,7 @@
 This custom component enables integration with the **Geek Magic** smart display device in Home Assistant.
 
 The latest tested and supported official firmware version
-is [Ultra-V9.0.43](https://github.com/GeekMagicClock/smalltv-ultra/tree/main/Ultra-V9.0.43).
+is [Ultra-V9.0.45](https://github.com/GeekMagicClock/smalltv-ultra/tree/main/Ultra-V9.0.45).
 
 > [!TIP]
 > Also supports custom firmwares, which are designed with backward compatibility.
