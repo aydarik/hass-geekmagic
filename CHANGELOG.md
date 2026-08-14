@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.1.2] - 2026-08-14
+
+### Added
+- Big Clock theme for custom firmware.
+
 ## [2.1.1] - 2026-02-23
 
 ### Fixed

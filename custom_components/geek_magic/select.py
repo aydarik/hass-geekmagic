@@ -25,6 +25,7 @@ THEMES_AYDARIK = {
     "Message": 2,
     "Image": 3,
     "Countdown": 4,
+    "Big Clock": 5,
 }
 
 

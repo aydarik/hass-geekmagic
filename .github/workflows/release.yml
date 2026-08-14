@@ -23,7 +23,7 @@ jobs:
         run: |
           sed -i 's/0.0.0/${{ steps.get_version.outputs.TAG }}/' custom_components/geek_magic/manifest.json
           echo "Updated manifest.json with version ${{ steps.get_version.outputs.TAG }}"
-          grep "FIRMWARE_VERSION_STRING" custom_components/geek_magic/manifest.json
+          grep "version" custom_components/geek_magic/manifest.json
 
       - name: Zip
         run: |
