@@ -1,0 +1,31 @@
+[project]
+name = "hass-geekmagic"
+description = "Geek Magic smart display integration for Home Assistant"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pillow>=10.0.0",
+    "requests>=2.31.0",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "F", # pyflakes
+    "I", # isort
+    "UP", # pyupgrade
+    "B", # flake8-bugbear
+    "ASYNC", # flake8-async
+]
+ignore = [
+    "E501", # line too long (handled by formatter)
+    "ASYNC109", # async function definition with a `timeout` parameter (used as device API parameter)
+]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true

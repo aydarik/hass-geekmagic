@@ -1,0 +1,34 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Geek Magic Setup",
+        "description": "Connect to your Geek Magic smart display.",
+        "data": {
+          "ip_address": "IP Address or Hostname",
+          "render_url": "HTML Render Service URL",
+          "html_template": "HTML Template"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the device. Please check the IP address.",
+      "unknown": "An unexpected error occurred."
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Geek Magic Options",
+        "data": {
+          "render_url": "HTML Render Service URL",
+          "html_template": "HTML Template",
+          "update_interval": "Update Interval (seconds)"
+        }
+      }
+    }
+  }
+}

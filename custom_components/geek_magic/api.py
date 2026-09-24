@@ -1,13 +1,28 @@
 """API Client for Geek Magic."""
+
+from __future__ import annotations
+
 import asyncio
 import logging
 import re
 import socket
 
 import aiohttp
-import async_timeout
+import requests
 
 _LOGGER = logging.getLogger(__name__)
+
+
+class GeekMagicError(Exception):
+    """Base exception for Geek Magic."""
+
+
+class GeekMagicConnectionError(GeekMagicError):
+    """Connection error communicating with Geek Magic."""
+
+
+class GeekMagicTimeoutError(GeekMagicError):
+    """Timeout error communicating with Geek Magic."""
 
 
 class GeekMagicApiClient:
@@ -57,26 +72,25 @@ class GeekMagicApiClient:
         loop = asyncio.get_running_loop()
 
         def _fetch():
-            import requests
             for attempt in range(2):
                 try:
                     resp = requests.get(
                         f"{self._url}/filelist",
                         params={"dir": "/image"},
-                        timeout=10
+                        timeout=10,
                     )
                     resp.raise_for_status()
                     return resp.text
-                except Exception as err:
+                except Exception as e:
                     if attempt == 1:
-                        raise err
-                    _LOGGER.debug("Retrying /filelist (dir=/image) after error: %s", err)
+                        raise
+                    _LOGGER.debug("Retrying /filelist (dir=/image) after error: %s", e)
             return ""
 
         try:
             html = await loop.run_in_executor(None, _fetch)
-        except Exception as err:
-            _LOGGER.error("Error fetching images: %s", err)
+        except Exception as e:
+            _LOGGER.error("Error fetching images: %s", e)
             return []
 
         # Pattern: href='/image/1.gif' -> 1.gif
@@ -91,26 +105,25 @@ class GeekMagicApiClient:
         loop = asyncio.get_running_loop()
 
         def _fetch():
-            import requests
             for attempt in range(2):
                 try:
                     resp = requests.get(
                         f"{self._url}/filelist",
                         params={"dir": "/gif"},
-                        timeout=10
+                        timeout=10,
                     )
                     resp.raise_for_status()
                     return resp.text
-                except Exception as err:
+                except Exception as e:
                     if attempt == 1:
-                        raise err
-                    _LOGGER.debug("Retrying /filelist (dir=/gif) after error: %s", err)
+                        raise
+                    _LOGGER.debug("Retrying /filelist (dir=/gif) after error: %s", e)
             return ""
 
         try:
             html = await loop.run_in_executor(None, _fetch)
-        except Exception as err:
-            _LOGGER.error("Error fetching images: %s", err)
+        except Exception as e:
+            _LOGGER.error("Error fetching images: %s", e)
             return []
 
         # Pattern: href='/gif/1.gif' -> 1.gif
@@ -150,21 +163,34 @@ class GeekMagicApiClient:
     async def async_set_message(self, custom_message: str, subject: str, style: str, timeout: int) -> None:
         """Set custom message."""
         # /set?msg=<custom_message>&sbj=<subject>&style=<style>
-        await self._api_wrapper("get", "set",
-                                params={"msg": custom_message, "sbj": subject, "style": style, "timeout": timeout},
-                                is_json=False)
+        await self._api_wrapper(
+            "get",
+            "set",
+            params={"msg": custom_message, "sbj": subject, "style": style, "timeout": timeout},
+            is_json=False,
+        )
 
     async def async_set_countdown(self, datetime: str, subject: str, timeout: int) -> None:
         """Set countdown."""
         # /set?cnt=<datetime>&sbj=<subject>
-        await self._api_wrapper("get", "set", params={"cnt": datetime, "sbj": subject, "timeout": timeout},
-                                is_json=False)
+        await self._api_wrapper(
+            "get", "set", params={"cnt": datetime, "sbj": subject, "timeout": timeout}, is_json=False
+        )
 
     async def async_set_note(self, note: str, rpm: int, force: bool, timeout: int) -> None:
         """Set sticky note."""
         # /set?note=<note>
-        await self._api_wrapper("get", "set", params={"note": note, "rpm": rpm, "force": "true" if force else "false",
-                                                      "timeout": timeout}, is_json=False)
+        await self._api_wrapper(
+            "get",
+            "set",
+            params={
+                "note": note,
+                "rpm": rpm,
+                "force": "true" if force else "false",
+                "timeout": timeout,
+            },
+            is_json=False,
+        )
 
     async def async_upload_file(self, file_data: bytes, filename: str) -> None:
         """Upload a file to the device."""
@@ -174,7 +200,6 @@ class GeekMagicApiClient:
         loop = asyncio.get_running_loop()
 
         def _upload():
-            import requests
             # files argument for requests handles multipart
             files = {"file": (filename, file_data, "image/jpeg")}
 
@@ -184,21 +209,27 @@ class GeekMagicApiClient:
                         f"{self._url}/doUpload",
                         params={"dir": "/image/"},
                         files=files,
-                        timeout=20
+                        timeout=20,
                     )
                     if resp.status_code != 200:
                         _LOGGER.error("Upload failed: %s %s", resp.status_code, resp.text)
                     resp.raise_for_status()
                     return
-                except Exception as err:
+                except Exception as e:
                     if attempt == 1:
-                        raise err
-                    _LOGGER.debug("Retrying /doUpload after error: %s", err)
+                        raise
+                    _LOGGER.debug("Retrying /doUpload after error: %s", e)
 
         await loop.run_in_executor(None, _upload)
 
-    async def _api_wrapper(self, method: str, url: str, data: dict | aiohttp.FormData | None = None,
-                           params: dict | None = None, is_json: bool = True) -> dict | str | None:
+    async def _api_wrapper(
+        self,
+        method: str,
+        url: str,
+        data: dict | aiohttp.FormData | None = None,
+        params: dict | None = None,
+        is_json: bool = True,
+    ) -> dict | str | None:
         """Get information from the API."""
         if params is None:
             params = {}
@@ -221,7 +252,7 @@ class GeekMagicApiClient:
         request_kwargs["headers"] = headers
 
         try:
-            async with async_timeout.timeout(10):
+            async with asyncio.timeout(10):
                 response = await self._session.request(**request_kwargs)
                 _LOGGER.debug("Requesting %s with params %s", f"{self._url}/{url}", params)
 
@@ -240,11 +271,11 @@ class GeekMagicApiClient:
                     _LOGGER.warning("Request %s with params %s returned FAIL", f"{self._url}/{url}", params)
                 return text_data
 
-        except asyncio.TimeoutError as exception:
-            raise Exception(f"Timeout error fetching information from {self._url} - {exception}") from exception
-        except (aiohttp.ClientError, socket.gaierror) as exception:
-            raise Exception(f"Error fetching information from {self._url} - {exception}") from exception
-        except Exception as exception:  # pylint: disable=broad-except
-            raise Exception(f"Something really wrong happened! - {exception}") from exception
-
-        return None
+        except TimeoutError as e:
+            raise GeekMagicTimeoutError(
+                f"Timeout error fetching information from {self._url} - {e}"
+            ) from e
+        except (aiohttp.ClientError, socket.gaierror) as e:
+            raise GeekMagicConnectionError(f"Error fetching information from {self._url} - {e}") from e
+        except Exception as e:
+            raise GeekMagicError(f"Unexpected error communicating with {self._url} - {e}") from e
