@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.1.3] - 2026-09-24
+
+### Added
+- Analog Clock theme for custom firmware.
+
 ## [2.1.2] - 2026-08-14
 
 ### Added

@@ -26,6 +26,7 @@ THEMES_AYDARIK = {
     "Image": 3,
     "Countdown": 4,
     "Big Clock": 5,
+    "Analog Clock": 6,
 }
 
 
