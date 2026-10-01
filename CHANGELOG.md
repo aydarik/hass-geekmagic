@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.4] - 2026-10-01
+
+### Added
+- Handle proper response code from HTML renderer.
+
+> [!IMPORTANT]
+> Update to this version is required if you are using default renderer or v1.3.12+ of [aydarik/text2image](https://github.com/aydarik/text2image).
+
 ## [2.1.3] - 2026-09-24
 
 ### Added

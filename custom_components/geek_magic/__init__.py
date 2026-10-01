@@ -124,9 +124,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                         json={"html": html_content, "cache": "true" if cache else "false"},
                         headers={"Content-Type": "application/json"},
                     ) as resp:
-                        if resp.status != 200:
+                        if resp.status not in (200, 201, 203):
                             _LOGGER.error("Error rendering HTML for device: %s", await resp.text())
                             continue
+                        content_unchanged = resp.status == 203
                         image_data = await resp.read()
                 except Exception as e:
                     _LOGGER.error("Error connecting to render service: %s", e)
@@ -136,7 +137,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 coord_is_aydarik = coord_model == "aydarik"
 
                 try:
-                    await coord.client.async_upload_file(image_data, f"{filename}.jpg")
+                    if not content_unchanged:
+                        await coord.client.async_upload_file(image_data, f"{filename}.jpg")
                     await coord.client.async_set_image(f"{filename}.jpg", timeout, not coord_is_aydarik)
                 except Exception as e:
                     _LOGGER.error("Error uploading image to device: %s", e)
