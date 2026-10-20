@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.1.5] - 2026-10-20
+
+### Changed
+- Custom icon for the integration.
+
 ## [2.1.4] - 2026-10-01
 
 ### Added
