@@ -52,12 +52,11 @@ async def _async_get_coordinators_by_device_id(
         dev_reg = dr.async_get(hass)
         for device_id in device_ids:
             device_entry = dev_reg.async_get(device_id)
-            if not device_entry or not device_entry.config_entries:
+            if not device_entry or not device_entry.config_entry_id:
                 continue
 
-            for config_entry_id in device_entry.config_entries:
-                if config_entry_id in hass.data.get(DOMAIN, {}):
-                    coordinators.append(hass.data[DOMAIN][config_entry_id])
+            if device_entry.config_entry_id in hass.data.get(DOMAIN, {}):
+                coordinators.append(hass.data[DOMAIN][device_entry.config_entry_id])
     else:
         # Target all devices
         coordinators.extend(hass.data.get(DOMAIN, {}).values())

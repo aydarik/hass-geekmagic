@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.1.6] - 2026-11-17
+
+### Fixed
+- Replaced deprecated `DeviceEntry.config_entries` with `DeviceEntry.config_entry_id`.
+
 ## [2.1.5] - 2026-10-20
 
 ### Changed
